@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import Algorithms
 
 class ListViewModel: ObservableObject {
     @Published var list: ListResponse<Photo>?
@@ -31,7 +32,6 @@ class ListViewModel: ObservableObject {
         
         cancellable = URLSession.shared
             .dataTaskPublisher(for: NetworkRequest.curatedList(page: (self.list?.page ?? 0) + 1))
-            .receive(on: DispatchQueue.main)
             .tryMap() { element -> Data in
                 guard let httpResponse = element.response as? HTTPURLResponse,
                       httpResponse.statusCode == 200 else {
@@ -40,6 +40,16 @@ class ListViewModel: ObservableObject {
                 return element.data
             }
             .decode(type: ListResponse<Photo>.self, decoder: decoder)
+            .map({ [weak self] listResponse in
+                ListResponse(
+                    page: listResponse.page,
+                    photos: Array(((self?.list?.photos ?? []) + listResponse.photos).uniqued()),
+                    perPage: listResponse.perPage,
+                    totalResults: listResponse.totalResults,
+                    nextPage: listResponse.nextPage
+                )
+            })            
+            .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] failure in
                 switch failure {
                     case .failure(let err):
@@ -48,7 +58,7 @@ class ListViewModel: ObservableObject {
                         break
                 }
             }, receiveValue: { [weak self] output in
-                self?.list = ListResponse(page: output.page, photos: (self?.list?.photos ?? []) + output.photos, perPage: output.perPage, totalResults: output.totalResults, nextPage: output.nextPage)
+                self?.list = output
             })
                 
     }

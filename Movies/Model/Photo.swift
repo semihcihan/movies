@@ -5,9 +5,13 @@
 //  Created by Semih Cihan on 18.04.2023.
 //
 
-struct Photo: Identifiable, Equatable, Decodable {
+struct Photo: Identifiable, Equatable, Decodable, Hashable {
     static func == (lhs: Photo, rhs: Photo) -> Bool {
         lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
     
     let id: Int

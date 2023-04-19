@@ -14,6 +14,11 @@ class ImageCache {
     typealias Publisher = AnyPublisher<Data, URLError>
     private var publishers = [String: Publisher]()
     private var cache: NSCache = NSCache<NSString, NSData>()
+    
+    func cachedImage(_ urlString: String) -> NSData? {
+        let urlNSString = NSString(string: urlString)
+        return cache.object(forKey: urlNSString)
+    }
         
     func loadImage(_ urlString: String) -> Publisher {
         guard let url = URL(string: urlString) else {

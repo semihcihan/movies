@@ -25,6 +25,7 @@
 		49F7945829F05D0300CD9AA0 /* NetworkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F7945729F05D0300CD9AA0 /* NetworkRequest.swift */; };
 		49F7945E29F06AE100CD9AA0 /* PlistReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F7945D29F06AE100CD9AA0 /* PlistReader.swift */; };
 		49F7946129F07A8300CD9AA0 /* MoviesRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F7946029F07A8300CD9AA0 /* MoviesRequest.swift */; };
+		49F7946429F0AEF900CD9AA0 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 49F7946329F0AEF900CD9AA0 /* Algorithms */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,6 +76,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				49F7946429F0AEF900CD9AA0 /* Algorithms in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -220,6 +222,9 @@
 			dependencies = (
 			);
 			name = Movies;
+			packageProductDependencies = (
+				49F7946329F0AEF900CD9AA0 /* Algorithms */,
+			);
 			productName = Movies;
 			productReference = 49DF746729EDBF48001EE4D3 /* Movies.app */;
 			productType = "com.apple.product-type.application";
@@ -292,6 +297,9 @@
 				Base,
 			);
 			mainGroup = 49DF745E29EDBF48001EE4D3;
+			packageReferences = (
+				49F7946229F0AEF900CD9AA0 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
+			);
 			productRefGroup = 49DF746829EDBF48001EE4D3 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -675,6 +683,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		49F7946229F0AEF900CD9AA0 /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		49F7946329F0AEF900CD9AA0 /* Algorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 49F7946229F0AEF900CD9AA0 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
+			productName = Algorithms;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 49DF745F29EDBF48001EE4D3 /* Project object */;
 }
