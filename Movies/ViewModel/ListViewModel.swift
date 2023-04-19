@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 class ListViewModel: ObservableObject {
     @Published var list: ListResponse<Photo>?
@@ -13,16 +14,33 @@ class ListViewModel: ObservableObject {
     var page: Int = 0
     var totalPages: Int = 0
     
-    func fetch() {
-        do {
-            if let bundlePath = Bundle.main.path(forResource: "sample_list_small", ofType: "json"),
-               let jsonData = try String(contentsOfFile: bundlePath).data(using: .utf8) {
-                let decorder = JSONDecoder()
-                decorder.keyDecodingStrategy = .convertFromSnakeCase
-                self.list = try decorder.decode(ListResponse<Photo>.self, from: jsonData)
+    var cancellable: AnyCancellable?
+    
+    func fetch() {        
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        
+        cancellable = URLSession.shared
+            .dataTaskPublisher(for: NetworkRequest.curatedList())
+            .receive(on: DispatchQueue.main)
+            .tryMap() { element -> Data in
+                guard let httpResponse = element.response as? HTTPURLResponse,
+                      httpResponse.statusCode == 200 else {
+                    throw URLError(.badServerResponse)
+                }
+                return element.data
             }
-        } catch {
-            print(error)
-        }
+            .decode(type: ListResponse<Photo>.self, decoder: decoder)
+            .sink(receiveCompletion: { [weak self] failure in
+                switch failure {
+                    case .failure(let err):
+                        self?.error = err.localizedDescription
+                    default:
+                        break
+                }
+            }, receiveValue: { [weak self] output in
+                self?.list = output
+            })
+                
     }
 }

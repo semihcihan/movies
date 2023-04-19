@@ -10,9 +10,18 @@ import SwiftUI
 struct ListView: View {
     @StateObject var viewModel: ListViewModel = ListViewModel()
     
+    let columns = [
+        GridItem(.adaptive(minimum: 400), spacing: 5)
+    ]
+    
     var body: some View {
-        List(viewModel.list?.photos ?? []) { photo in
-            PhotoCellView(photo: photo)
+        ScrollView {
+            LazyVGrid(columns: columns, spacing: 5) {
+                ForEach(viewModel.list?.photos ?? []) { photo in
+                    PhotoCellView(photo: photo)
+                }
+            }
+            .padding(5)
         }
         .task {
             viewModel.fetch()

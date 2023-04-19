@@ -8,30 +8,28 @@
 import SwiftUI
 
 struct PhotoCellView: View {
-    var viewModel: PhotoCellViewModel
+    @ObservedObject var viewModel: PhotoCellViewModel
     
     init(photo: Photo) {
         self.viewModel = PhotoCellViewModel(photo: photo)
     }
     
     var body: some View {
-        VStack {
-            AsyncImage(url: URL(string: viewModel.photo?.src.portrait ?? "")) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                ProgressView()
+        Rectangle()
+            .opacity(0)
+            .aspectRatio(1, contentMode: .fit)
+            .overlay(
+                LinearGradient(colors: [.white, .gray], startPoint: .topLeading, endPoint: .bottomTrailing)
+            )
+            .overlay(viewModel.image != nil ?
+                     Image(uiImage: viewModel.image!)
+                .resizable()
+                .scaledToFill() : nil
+            )
+            .clipShape(Rectangle())
+            .task {
+                self.viewModel.loadImage(\.portrait)
             }
-            .frame(width: 200, height: 200)
-            .clipped()
-            .cornerRadius(10)
-            
-            Text("lorem ipsum dolor sit amet very good")
-                .multilineTextAlignment(.center)
-                .font(.headline)
-                .frame(width: 200)
-        }
     }
 }
 
