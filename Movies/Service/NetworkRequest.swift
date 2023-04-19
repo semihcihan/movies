@@ -10,7 +10,7 @@ import Foundation
 struct NetworkRequest {
     var baseURL: String
     var path: String
-    var method: HttpMethod
+    var method: HttpMethod = .get
     var httpBody: Encodable?
     var headers: [String: String]?
     var queryParameters: [URLQueryItem]?

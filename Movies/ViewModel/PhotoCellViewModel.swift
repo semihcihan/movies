@@ -41,5 +41,11 @@ class PhotoCellViewModel: ObservableObject {
             self?.error = nil
         }
     }
+    
+    func releaseImage() {
+        self.cancellable = nil
+        self.image = nil
+        self.error = nil
+    }
 
 }

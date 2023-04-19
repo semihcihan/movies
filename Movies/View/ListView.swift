@@ -20,11 +20,15 @@ struct ListView: View {
                 ForEach(viewModel.list?.photos ?? []) { photo in
                     PhotoCellView(photo: photo)
                 }
+                if viewModel.canRequestMore {
+                    ProgressView()
+                        .padding()
+                        .onAppear {
+                            viewModel.fetch()
+                        }
+                }
             }
             .padding(5)
-        }
-        .task {
-            viewModel.fetch()
         }
     }
 }

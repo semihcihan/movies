@@ -10,4 +10,5 @@ struct ListResponse<T: Decodable>: Decodable {
     var photos: [T]
     var perPage: Int
     var totalResults: Int
+    var nextPage: String?
 }

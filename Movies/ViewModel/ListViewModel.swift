@@ -11,17 +11,26 @@ import Combine
 class ListViewModel: ObservableObject {
     @Published var list: ListResponse<Photo>?
     var error: String?
-    var page: Int = 0
-    var totalPages: Int = 0
     
     var cancellable: AnyCancellable?
     
-    func fetch() {        
+    var canRequestMore: Bool {
+        guard let list = list else {
+            return true
+        }
+        return !(list.nextPage ?? "").isEmpty
+    }
+    
+    func fetch() {
+        guard canRequestMore else {
+            return
+        }
+        
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         
         cancellable = URLSession.shared
-            .dataTaskPublisher(for: NetworkRequest.curatedList())
+            .dataTaskPublisher(for: NetworkRequest.curatedList(page: (self.list?.page ?? 0) + 1))
             .receive(on: DispatchQueue.main)
             .tryMap() { element -> Data in
                 guard let httpResponse = element.response as? HTTPURLResponse,
@@ -39,7 +48,7 @@ class ListViewModel: ObservableObject {
                         break
                 }
             }, receiveValue: { [weak self] output in
-                self?.list = output
+                self?.list = ListResponse(page: output.page, photos: (self?.list?.photos ?? []) + output.photos, perPage: output.perPage, totalResults: output.totalResults, nextPage: output.nextPage)
             })
                 
     }

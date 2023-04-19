@@ -27,8 +27,11 @@ struct PhotoCellView: View {
                 .scaledToFill() : nil
             )
             .clipShape(Rectangle())
-            .task {
-                self.viewModel.loadImage(\.portrait)
+            .onAppear {
+                self.viewModel.loadImage(\.large)
+            }
+            .onDisappear {
+                self.viewModel.releaseImage()
             }
     }
 }
