@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21513" systemVersion="22C65" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Photo" representedClassName=".Photo" syncable="YES" codeGenerationType="category">
+        <attribute name="alt" optional="YES" attributeType="String"/>
+        <attribute name="attribute" optional="YES" attributeType="String"/>
+        <attribute name="attribute1" optional="YES" attributeType="String"/>
+        <attribute name="avgColor" optional="YES" attributeType="String"/>
+        <attribute name="height" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="liked" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="photographer" optional="YES" attributeType="String"/>
+        <attribute name="photographerId" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="photographerUrl" optional="YES" attributeType="String"/>
+        <attribute name="url" optional="YES" attributeType="String"/>
+        <attribute name="width" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="src" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Source"/>
+    </entity>
+    <entity name="Source" representedClassName=".Source" parentEntity="Photo" syncable="YES" codeGenerationType="class">
+        <attribute name="landscape" optional="YES" attributeType="String"/>
+        <attribute name="large" optional="YES" attributeType="String"/>
+        <attribute name="large2x" optional="YES" attributeType="String"/>
+        <attribute name="medium" optional="YES" attributeType="String"/>
+        <attribute name="original" optional="YES" attributeType="String"/>
+        <attribute name="portrait" optional="YES" attributeType="String"/>
+        <attribute name="small" optional="YES" attributeType="String"/>
+        <attribute name="tiny" optional="YES" attributeType="String"/>
+    </entity>
+</model>
