@@ -26,6 +26,8 @@
 		49F7945E29F06AE100CD9AA0 /* PlistReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F7945D29F06AE100CD9AA0 /* PlistReader.swift */; };
 		49F7946129F07A8300CD9AA0 /* MoviesRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F7946029F07A8300CD9AA0 /* MoviesRequest.swift */; };
 		49F7946429F0AEF900CD9AA0 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 49F7946329F0AEF900CD9AA0 /* Algorithms */; };
+		49F7946629F159A800CD9AA0 /* PhotoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F7946529F159A800CD9AA0 /* PhotoView.swift */; };
+		49F7946829F159BD00CD9AA0 /* PhotoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F7946729F159BD00CD9AA0 /* PhotoViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +71,8 @@
 		49F7945D29F06AE100CD9AA0 /* PlistReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlistReader.swift; sourceTree = "<group>"; };
 		49F7945F29F06D0100CD9AA0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		49F7946029F07A8300CD9AA0 /* MoviesRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoviesRequest.swift; sourceTree = "<group>"; };
+		49F7946529F159A800CD9AA0 /* PhotoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoView.swift; sourceTree = "<group>"; };
+		49F7946729F159BD00CD9AA0 /* PhotoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -173,6 +177,7 @@
 				49DF746C29EDBF48001EE4D3 /* ContentView.swift */,
 				49DF749829EDC130001EE4D3 /* ListView.swift */,
 				49DF74A529EDF428001EE4D3 /* PhotoCellView.swift */,
+				49F7946529F159A800CD9AA0 /* PhotoView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -182,6 +187,7 @@
 			children = (
 				49DF749F29EDC6A2001EE4D3 /* ListViewModel.swift */,
 				49DF74A729EDF453001EE4D3 /* PhotoCellViewModel.swift */,
+				49F7946729F159BD00CD9AA0 /* PhotoViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -344,6 +350,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				49F7945829F05D0300CD9AA0 /* NetworkRequest.swift in Sources */,
+				49F7946629F159A800CD9AA0 /* PhotoView.swift in Sources */,
 				49F7945E29F06AE100CD9AA0 /* PlistReader.swift in Sources */,
 				49F7946129F07A8300CD9AA0 /* MoviesRequest.swift in Sources */,
 				49DF74A429EDF271001EE4D3 /* Photo.swift in Sources */,
@@ -351,6 +358,7 @@
 				49DF74A229EDC999001EE4D3 /* ListResponse.swift in Sources */,
 				49DF74AB29EF4AB1001EE4D3 /* ImageCache.swift in Sources */,
 				49DF74A029EDC6A2001EE4D3 /* ListViewModel.swift in Sources */,
+				49F7946829F159BD00CD9AA0 /* PhotoViewModel.swift in Sources */,
 				49DF746D29EDBF48001EE4D3 /* ContentView.swift in Sources */,
 				49DF746B29EDBF48001EE4D3 /* MoviesApp.swift in Sources */,
 				49DF749929EDC130001EE4D3 /* ListView.swift in Sources */,

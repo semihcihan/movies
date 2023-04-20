@@ -15,20 +15,24 @@ struct ListView: View {
     ]
     
     var body: some View {
-        ScrollView {
-            LazyVGrid(columns: columns, spacing: 5) {
-                ForEach(viewModel.list?.photos ?? []) { photo in
-                    PhotoCellView(photo: photo)
-                }
-                if viewModel.canRequestMore {
-                    ProgressView()
-                        .padding()
-                        .onAppear {
-                            viewModel.fetch()
+        NavigationStack {
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: 5) {
+                    ForEach(viewModel.list?.photos ?? []) { photo in
+                        NavigationLink(destination: PhotoView(photo: photo)) {
+                            PhotoCellView(photo: photo)
                         }
+                    }
+                    if viewModel.canRequestMore {
+                        ProgressView()
+                            .padding()
+                            .onAppear {
+                                viewModel.fetch()
+                            }
+                    }
                 }
+                .padding(5)
             }
-            .padding(5)
         }
     }
 }
