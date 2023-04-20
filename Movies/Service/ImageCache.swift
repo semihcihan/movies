@@ -15,9 +15,10 @@ class ImageCache {
     private var publishers = [String: Publisher]()
     private var cache: NSCache = NSCache<NSString, NSData>()
     
-    func cachedImage(_ urlString: String) -> NSData? {
-        let urlNSString = NSString(string: urlString)
-        return cache.object(forKey: urlNSString)
+    func cachedImage(_ url: String) -> NSData? {
+        let urlNSString = NSString(string: url)
+        let data = cache.object(forKey: urlNSString)        
+        return data
     }
         
     func loadImage(_ urlString: String) -> Publisher {
@@ -31,14 +32,14 @@ class ImageCache {
             return publisher
         }
         
-        let urlNSString = NSString(string: urlString)
-        if let nsdata = cache.object(forKey: urlNSString) {
+        if let nsdata = cachedImage(urlString) {
             return Just(Data(referencing: nsdata))
                 .setFailureType(to: URLError.self)
                 .receive(on: DispatchQueue.main)
                 .eraseToAnyPublisher()
         }
         
+        let urlNSString = NSString(string: urlString)
         let publisher = URLSession.shared.dataTaskPublisher(for: url)
             .map(\.data)
             .receive(on: DispatchQueue.main)

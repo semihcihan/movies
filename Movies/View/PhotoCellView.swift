@@ -8,12 +8,12 @@
 import SwiftUI
 
 struct PhotoCellView: View {
-    @ObservedObject var viewModel: PhotoCellViewModel
+    @StateObject var viewModel: PhotoCellViewModel
     
     init(photo: Photo) {
-        self.viewModel = PhotoCellViewModel(photo: photo)
+        _viewModel = StateObject(wrappedValue: { PhotoCellViewModel(photo: photo) }())
     }
-    
+
     var body: some View {
         Rectangle()
             .opacity(0)
