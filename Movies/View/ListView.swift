@@ -7,8 +7,17 @@
 
 import SwiftUI
 
-struct ListView: View {
-    @StateObject var viewModel: ListViewModel = ListViewModel()
+struct ListView: View {    
+    @StateObject var viewModel: ListViewModel
+    
+    enum ContentType {
+        case all
+        case favorites
+    }
+    
+    init(content: ContentType = .all) {
+        _viewModel = StateObject(wrappedValue: { ListViewModel(contentType: content) }())
+    }
     
     let columns = [
         GridItem(.adaptive(minimum: 400), spacing: 5)
@@ -32,10 +41,12 @@ struct ListView: View {
                     }
                 }
                 .padding(5)
-            }
-        }
+            }            
+        }        
     }
 }
+
+
 
 struct ListView_Previews: PreviewProvider {
     static var previews: some View {

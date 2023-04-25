@@ -16,6 +16,10 @@ struct PhotoView: View {
     @State private var translationPrevValue: CGSize = .zero
     @State private var imageOffset: CGSize = .zero
     
+    private var showHeart: Bool {
+        imageScale == 1 && imageOffset == .zero
+    }
+    
     let animationDuration = 0.2
     
     init(photo: Photo) {
@@ -75,7 +79,7 @@ struct PhotoView: View {
                     .resizable()
                     .scaledToFit()
                     .overlay(
-                        imageScale == 1 ? Image(systemName: viewModel.liked ? "heart.fill" : "heart")
+                        showHeart ? Image(systemName: viewModel.liked ? "heart.fill" : "heart")
                             .font(.largeTitle)
                             .scaleEffect(heartScale)
                             .foregroundColor(viewModel.liked ? .pink : .white)

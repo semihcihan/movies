@@ -28,6 +28,7 @@
 		49F7946429F0AEF900CD9AA0 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 49F7946329F0AEF900CD9AA0 /* Algorithms */; };
 		49F7946629F159A800CD9AA0 /* PhotoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F7946529F159A800CD9AA0 /* PhotoView.swift */; };
 		49F7946829F159BD00CD9AA0 /* PhotoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F7946729F159BD00CD9AA0 /* PhotoViewModel.swift */; };
+		49F7948D29F1CD2E00CD9AA0 /* LikedPhotos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F7948C29F1CD2E00CD9AA0 /* LikedPhotos.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -73,6 +74,7 @@
 		49F7946029F07A8300CD9AA0 /* MoviesRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoviesRequest.swift; sourceTree = "<group>"; };
 		49F7946529F159A800CD9AA0 /* PhotoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoView.swift; sourceTree = "<group>"; };
 		49F7946729F159BD00CD9AA0 /* PhotoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewModel.swift; sourceTree = "<group>"; };
+		49F7948C29F1CD2E00CD9AA0 /* LikedPhotos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LikedPhotos.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -208,6 +210,7 @@
 				49F7945729F05D0300CD9AA0 /* NetworkRequest.swift */,
 				49F7945D29F06AE100CD9AA0 /* PlistReader.swift */,
 				49F7946029F07A8300CD9AA0 /* MoviesRequest.swift */,
+				49F7948C29F1CD2E00CD9AA0 /* LikedPhotos.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -349,6 +352,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				49F7948D29F1CD2E00CD9AA0 /* LikedPhotos.swift in Sources */,
 				49F7945829F05D0300CD9AA0 /* NetworkRequest.swift in Sources */,
 				49F7946629F159A800CD9AA0 /* PhotoView.swift in Sources */,
 				49F7945E29F06AE100CD9AA0 /* PlistReader.swift in Sources */,

@@ -27,9 +27,21 @@ class PhotoViewModel: ObservableObject {
     
     func like() {
         self.liked.toggle()
+        
+        if let photo = photo {
+            if self.liked {
+                LikedPhotos.shared.addPhoto(photo)
+            } else {
+                LikedPhotos.shared.removePhoto(photo)
+            }
+        }
     }
     
     func loadImage(_ keyPath: KeyPath<Source, String>) {
+        if let photo = photo {            
+            liked = LikedPhotos.shared.isLiked(photo)
+        }
+        
         guard let urlString = photo?.src[keyPath: keyPath] else {
             self.error = ImageError.badURL
             return

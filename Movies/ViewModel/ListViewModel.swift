@@ -12,10 +12,26 @@ import Algorithms
 class ListViewModel: ObservableObject {
     @Published var list: ListResponse<Photo>?
     var error: String?
+    var contentType: ListView.ContentType = .all
+    
+    init(list: ListResponse<Photo>? = nil, error: String? = nil, contentType: ListView.ContentType) {
+        self.error = error
+        self.contentType = contentType
+            
+        if contentType == .favorites {
+            self.list = LikedPhotos.shared.list
+        } else {
+            self.list = list
+        }
+    }
     
     var cancellable: AnyCancellable?
     
     var canRequestMore: Bool {
+        guard contentType == .all else {
+            return false
+        }
+        
         guard let list = list else {
             return true
         }

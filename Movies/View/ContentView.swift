@@ -12,11 +12,14 @@ struct ContentView: View {
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            ListView()
+            ListView(content: .all)
                 .tabItem {
                     Label("Photos", systemImage: "photo")
                 }
-            
+            ListView(content: .favorites)
+                .tabItem {
+                    Label("Favorites", systemImage: "heart")
+                }
         }
     }
 }
