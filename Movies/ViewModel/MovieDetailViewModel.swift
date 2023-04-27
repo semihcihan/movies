@@ -1,15 +1,15 @@
 //
-//  PhotoCellViewModel.swift
+//  PhotoViewModel.swift
 //  Movies
 //
-//  Created by Semih Cihan on 18.04.2023.
+//  Created by Semih Cihan on 20.04.2023.
 //
 
 import Foundation
 import UIKit
 import Combine
 
-class PhotoCellViewModel: ObservableObject {
+class MovieDetailViewModel: ObservableObject {
     @Published var image: UIImage?
     var error: ImageError?
     var photo: Photo?
@@ -23,13 +23,13 @@ class PhotoCellViewModel: ObservableObject {
         case badURL = "Bad URL"
         case loadError = "Something went wrong while loading"
     }
-        
-    func loadImage(_ keyPath: KeyPath<Source, String>) {
+    
+    func loadImage(_ keyPath: KeyPath<Source, String>) {                
         guard let urlString = photo?.src[keyPath: keyPath] else {
             self.error = ImageError.badURL
             return
         }
-
+        
         self.cancellable = ImageCache.shared.loadImage(urlString).sink { [weak self] _ in
             self?.error = ImageError.loadError
         } receiveValue: { [weak self] data in
@@ -47,5 +47,5 @@ class PhotoCellViewModel: ObservableObject {
         self.image = nil
         self.error = nil
     }
-
+    
 }

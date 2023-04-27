@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct PhotoView: View {
-    @StateObject private var viewModel: PhotoViewModel
+struct MovieDetailView: View {
+    @StateObject private var viewModel: MovieDetailViewModel
     @State private var heartScale = 1.0
     @State private var imageScale = 1.0
     
@@ -23,7 +23,7 @@ struct PhotoView: View {
     let animationDuration = 0.2
     
     init(photo: Photo) {
-        _viewModel = StateObject(wrappedValue: { PhotoViewModel(photo: photo) }())
+        _viewModel = StateObject(wrappedValue: { MovieDetailViewModel(photo: photo) }())
     }
     
     func resetImageState() {
@@ -79,15 +79,14 @@ struct PhotoView: View {
                     .resizable()
                     .scaledToFit()
                     .overlay(
-                        showHeart ? Image(systemName: viewModel.liked ? "heart.fill" : "heart")
+                        showHeart ? Image(systemName: "heart")
                             .font(.largeTitle)
                             .scaleEffect(heartScale)
-                            .foregroundColor(viewModel.liked ? .pink : .white)
+                            .foregroundColor(.white)
                             .padding()
                             .onTapGesture {
                                 withAnimation(Animation.easeInOut(duration: animationDuration)) {
                                     heartScale = 1.2
-                                    viewModel.like()
                                 }
                                 
                                 withAnimation(Animation.easeInOut(duration: animationDuration).delay(animationDuration)) {
@@ -125,6 +124,6 @@ struct PhotoView: View {
 
 struct PhotoView_Previews: PreviewProvider {
     static var previews: some View {
-        PhotoView(photo: Photo.preview)
+        MovieDetailView(photo: Photo.preview)
     }
 }

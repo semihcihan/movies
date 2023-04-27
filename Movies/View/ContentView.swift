@@ -9,16 +9,13 @@ import SwiftUI
 
 struct ContentView: View {
     @State var selectedTab: Int = 0
+    let serv = RealMovieService(movieRepository: RealMovieRepository())
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            ListView(content: .all)
+            ListView(viewModel: ListView.ViewModel(service: serv))
                 .tabItem {
-                    Label("Photos", systemImage: "photo")
-                }
-            ListView(content: .favorites)
-                .tabItem {
-                    Label("Favorites", systemImage: "heart")
+                    Label("Movies", systemImage: "movie")
                 }
         }
     }

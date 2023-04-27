@@ -5,10 +5,9 @@
 //  Created by Semih Cihan on 17.04.2023.
 //
 
-struct ListResponse<T: Decodable>: Decodable {
+struct ListSlice<T: Decodable>: Decodable {
     var page: Int
-    var photos: [T]
-    var perPage: Int
+    var results: [T]
+    var totalPages: Int
     var totalResults: Int
-    var nextPage: String?
 }

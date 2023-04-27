@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-struct PhotoCellView: View {
-    @StateObject var viewModel: PhotoCellViewModel
+struct MovieCellView: View {
+    @StateObject var viewModel: MovieCellViewModel
     
-    init(photo: Photo) {
-        _viewModel = StateObject(wrappedValue: { PhotoCellViewModel(photo: photo) }())
+    init(movie: Movie) {
+        _viewModel = StateObject(wrappedValue: { MovieCellViewModel(movie: movie) }())
     }
 
     var body: some View {
@@ -38,6 +38,6 @@ struct PhotoCellView: View {
 
 struct PhotoCellView_Previews: PreviewProvider {
     static var previews: some View {
-        PhotoCellView(photo: Photo.preview)
+        MovieCellView(movie: Movie.preview)
     }
 }
