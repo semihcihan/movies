@@ -10,7 +10,7 @@ import Combine
 import SwiftUI
 
 protocol MovieService {
-    func popularList(page: Int) -> AnyPublisher<ListSlice<Movie>, Error>
+    func list(page: Int, mediaType: Media.MediaType?, search: String, rating: Int?) -> AnyPublisher<ListSlice<Media>, Error>
 }
 
 class RealMovieService: MovieService {
@@ -20,7 +20,30 @@ class RealMovieService: MovieService {
         self.movieRepository = movieRepository
     }
     
-    func popularList(page: Int) -> AnyPublisher<ListSlice<Movie>, Error> {
-        return movieRepository.popularList(page: page, perPage: 10)
+    func list(page: Int, mediaType: Media.MediaType?, search: String, rating: Int?) -> AnyPublisher<ListSlice<Media>, Error> {
+        if search.count > 0 {
+            return movieRepository.searchList(page: 1, perPage: 20, keyword: search)
+                .receive(on: DispatchQueue.main)
+                .eraseToAnyPublisher()
+        } else if let rating = rating {
+            return movieRepository.discoverList(page: 1, perPage: page, rating: rating, mediaType: mediaType).map {
+                var slice = $0
+                if let mediaType = mediaType {
+                    slice.results = slice.results.map { media in
+                        var media = media
+                        media.mediaType = mediaType
+                        return media
+                    }
+                }
+                return slice
+            }
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+        } else {
+            return movieRepository.trendingList(page: page, perPage: 10, mediaType: mediaType)
+                .receive(on: DispatchQueue.main)
+                .eraseToAnyPublisher()
+        }
     }
 }
+

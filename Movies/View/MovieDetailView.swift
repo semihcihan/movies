@@ -6,124 +6,122 @@
 //
 
 import SwiftUI
+import Combine
 
 struct MovieDetailView: View {
-    @StateObject private var viewModel: MovieDetailViewModel
+    @StateObject private var viewModel: ViewModel
     @State private var heartScale = 1.0
     @State private var imageScale = 1.0
     
     @State private var magnificationPrevValue = 1.0
     @State private var translationPrevValue: CGSize = .zero
     @State private var imageOffset: CGSize = .zero
-    
-    private var showHeart: Bool {
-        imageScale == 1 && imageOffset == .zero
-    }
-    
+        
     let animationDuration = 0.2
-    
-    init(photo: Photo) {
-        _viewModel = StateObject(wrappedValue: { MovieDetailViewModel(photo: photo) }())
-    }
-    
-    func resetImageState() {
-        return withAnimation(.spring()) {
-            imageScale = 1
-            imageOffset = .zero
-        }
-    }
-    
-    var drag: some Gesture {
-        DragGesture()
-            .onChanged { value in
-                withAnimation(.linear(duration: 0.1)) {
-                    imageOffset = CGSizeMake(imageOffset.width + value.translation.width - translationPrevValue.width, imageOffset.height + value.translation.height - translationPrevValue.height)
-                    
-                    translationPrevValue = value.translation
-                }
-            }
-            .onEnded { _ in
-                translationPrevValue = .zero
-            }
-    }
-    
-    var magnification: some Gesture {
-        MagnificationGesture()
-            .onChanged { value in
-                withAnimation(.linear(duration: 0.3)) {
-                    let newScale = imageScale + value - magnificationPrevValue
-                    magnificationPrevValue = value
-                    if newScale >= 1 && newScale <= 5 {
-                        imageScale = newScale
-                    } else if newScale > 5 {
-                        imageScale = 5
-                    } else if newScale < 1 {
-                        imageScale = 1
-                    }
-                }
-            }
-            .onEnded { _ in
-                magnificationPrevValue = 1
-                if imageScale > 5 {
-                    imageScale = 5
-                } else if imageScale <= 1 {
-                    resetImageState()
-                }
-            }
+        
+    init(movie: Media?) {
+        _viewModel = StateObject(wrappedValue: { ViewModel(movie: movie) }())
     }
     
     var body: some View {
-        ZStack {
-            if let image = viewModel.image {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
-                    .overlay(
-                        showHeart ? Image(systemName: "heart")
-                            .font(.largeTitle)
-                            .scaleEffect(heartScale)
-                            .foregroundColor(.white)
-                            .padding()
-                            .onTapGesture {
-                                withAnimation(Animation.easeInOut(duration: animationDuration)) {
-                                    heartScale = 1.2
-                                }
-                                
-                                withAnimation(Animation.easeInOut(duration: animationDuration).delay(animationDuration)) {
-                                    heartScale = 1
-                                }
-                            } : nil,
-                        alignment: .bottomLeading
-                    )
-                    .offset(x: imageOffset.width, y: imageOffset.height)
-                    .scaleEffect(imageScale)
-                    .onTapGesture(count: 2, perform: { point in
-                        if imageScale == 1 {
-                            withAnimation(.linear(duration: animationDuration)) {
-                                imageScale = 5
+        ScrollView {
+            VStack {
+                ZStack {
+                    if let image = viewModel.image {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                    } else {
+                        Color.white
+                            .frame(height: 220)
+                    }
+                }
+                .overlay(
+                    Image(systemName: "heart")
+                        .font(.largeTitle)
+                        .scaleEffect(heartScale)
+                        .foregroundColor(.pink)                        
+                        .padding()
+                        .onTapGesture {
+                            withAnimation(Animation.easeInOut(duration: animationDuration)) {
+                                heartScale = 1.2
                             }
-                        } else {
-                            resetImageState()
-                        }
-                    })
-                    .gesture(drag)
-                    .gesture(magnification)
+
+                            withAnimation(Animation.easeInOut(duration: animationDuration).delay(animationDuration)) {
+                                heartScale = 1
+                            }
+                        },
+                    alignment: .bottomLeading
+                )
                 
-            } else {
-                Color(.black)
+                VStack(spacing: 8) {
+                    Text(viewModel.movie?.title ?? "")
+                        .font(.largeTitle)
+                    Text(viewModel.movie?.overview ?? "")
+                }
+                .padding()
+                
+                Spacer()
             }
         }
         .onAppear {
-            self.viewModel.loadImage(\.original)
+            viewModel.loadImage(viewModel.movie?.backdropPath, size: MovieImageSize.BackdropSize.w780.rawValue)
         }
         .onDisappear {
-            self.viewModel.releaseImage()
+            viewModel.releaseImage()
         }
     }
 }
 
-struct PhotoView_Previews: PreviewProvider {
+extension MovieDetailView {
+    class ViewModel: ObservableObject {
+        @Published var image: UIImage?
+        var error: ImageError?
+        var movie: Media?
+        var cancellable: Cancellable?
+        var imageService: ImageService
+
+        init(movie: Media? = nil, imageService: ImageService = DIContainer.shared.resolve(type: ImageService.self)) {
+            self.movie = movie ?? Media.preview
+            self.imageService = imageService
+        }
+        
+        enum ImageError: String, Error {
+            case badURL = "Bad URL"
+            case loadError = "Something went wrong while loading"
+        }
+        
+        func loadImage(_ path: String?, size: String) {
+            guard let path = path else {
+                self.error = ImageError.badURL
+                return
+            }
+            
+            self.cancellable = imageService.loadImage(
+                ImagePath.path(path: path, size: size)
+            )
+            .sink { [weak self] _ in
+                self?.error = ImageError.loadError
+            } receiveValue: { [weak self] data in
+                guard let image = UIImage(data: data) else {
+                    self?.error = ImageError.loadError
+                    return
+                }
+                self?.image = image
+                self?.error = nil
+            }
+        }
+        
+        func releaseImage() {
+            self.cancellable = nil
+            self.image = nil
+            self.error = nil
+        }
+    }
+}
+
+struct MovieDetailView_Previews: PreviewProvider {
     static var previews: some View {
-        MovieDetailView(photo: Photo.preview)
+        MovieDetailView(movie: Media.preview)
     }
 }

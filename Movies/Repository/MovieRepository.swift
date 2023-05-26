@@ -9,35 +9,86 @@ import Foundation
 import Combine
 
 protocol MovieRepository {
-    func popularList(page: Int, perPage: Int) -> AnyPublisher<ListSlice<Movie>, Error>
+    func trendingList(page: Int, perPage: Int, mediaType: Media.MediaType?) -> AnyPublisher<ListSlice<Media>, Error>
+    func discoverList(page: Int, perPage: Int, rating: Int, mediaType: Media.MediaType?) -> AnyPublisher<ListSlice<Media>, Error>
+    func searchList(page: Int, perPage: Int, keyword: String) -> AnyPublisher<ListSlice<Media>, Error>
 }
 
 struct RealMovieRepository: MovieRepository {
     private let baseUrl: String
     private let auth: String
     
-    init() {
-        baseUrl = try! PlistReader.value(for: "BASE_URL")
-        auth = try! PlistReader.value(for: "AUTHORIZATION")
+    private var decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return decoder
+    }()
+    
+    init(baseUrl: String, auth: String) {
+        self.baseUrl = baseUrl
+        self.auth = auth
     }
     
-    func popularList(page: Int, perPage: Int) -> AnyPublisher<ListSlice<Movie>, Error> {
+    init() {
+        self.init(baseUrl: try! PlistReader.value(for: "BASE_URL"), auth: try! PlistReader.value(for: "AUTHORIZATION"))
+    }
+    
+    func discoverList(page: Int, perPage: Int, rating: Int, mediaType: Media.MediaType?) -> AnyPublisher<ListSlice<Media>, Error> {
+        let queryParams = [
+            URLQueryItem(name: "page", value: String(page)),
+            URLQueryItem(name: "per_page", value: String(perPage)),
+            URLQueryItem(name: "api_key", value: auth),
+            URLQueryItem(name: "vote_average.gte", value: String(rating)),
+            URLQueryItem(name: "vote_count.gte", value: String(100))
+        ]
+        
+        let request = NetworkRequest(
+            baseURL: "https://" + baseUrl,
+            path: "discover/movie",
+            queryParameters: queryParams
+        ).urlRequest
+        
+        print(request)
+        
+        return URLSession.shared
+            .decodedTaskPublisher(for: request, decoder: decoder, decodeTo: ListSlice<Media>.self)
+
+    }
+    
+    func searchList(page: Int, perPage: Int, keyword: String) -> AnyPublisher<ListSlice<Media>, Error> {
+        let queryParams = [
+            URLQueryItem(name: "page", value: String(page)),
+            URLQueryItem(name: "per_page", value: String(perPage)),
+            URLQueryItem(name: "api_key", value: auth),
+            URLQueryItem(name: "query", value: keyword)
+        ]
+        
+        let request = NetworkRequest(
+            baseURL: "https://" + baseUrl,
+            path: "search/multi",
+            queryParameters: queryParams
+        ).urlRequest
+        
+        return URLSession.shared
+            .decodedTaskPublisher(for: request, decoder: decoder, decodeTo: ListSlice<Media>.self)
+    }
+    
+    func trendingList(page: Int, perPage: Int, mediaType: Media.MediaType?) -> AnyPublisher<ListSlice<Media>, Error> {
         let queryParams = [
             URLQueryItem(name: "page", value: String(page)),
             URLQueryItem(name: "per_page", value: String(perPage)),
             URLQueryItem(name: "api_key", value: auth)
         ]
         
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        
+        let mediaTypePath = mediaType != nil ? mediaType!.rawValue : "all"
+                
         let request = NetworkRequest(
             baseURL: "https://" + baseUrl,
-            path: "movie/popular",
+            path: "trending/\(mediaTypePath)/week",
             queryParameters: queryParams
         ).urlRequest
-        
+        print(request)
         return URLSession.shared
-            .decodedTaskPublisher(for: request, decoder: decoder, decodeTo: ListSlice<Movie>.self)
+            .decodedTaskPublisher(for: request, decoder: decoder, decodeTo: ListSlice<Media>.self)
     }
 }

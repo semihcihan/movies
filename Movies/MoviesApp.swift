@@ -9,6 +9,11 @@ import SwiftUI
 
 @main
 struct MoviesApp: App {
+    
+    init() {
+        DIContainer.bootstrap()
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()

@@ -1,26 +1,29 @@
 //
-//  ImageCache.swift
+//  ImageService.swift
 //  Movies
 //
-//  Created by Semih Cihan on 19.04.2023.
+//  Created by Semih Cihan on 22.05.2023.
 //
 
 import Foundation
 import Combine
 
-class ImageCache {
-    static let shared = ImageCache()
+typealias Publisher = AnyPublisher<Data, URLError>
 
-    typealias Publisher = AnyPublisher<Data, URLError>
+protocol ImageService {
+    func loadImage(_ urlString: String) -> Publisher
+}
+
+class RealImageService: ImageService {
+    private let webRepository: ImageWebRepository
+    private let cacheRepository: ImageCacheRepository
     private var publishers = [String: Publisher]()
-    private var cache: NSCache = NSCache<NSString, NSData>()
     
-    func cachedImage(_ url: String) -> NSData? {
-        let urlNSString = NSString(string: url)
-        let data = cache.object(forKey: urlNSString)        
-        return data
+    init(webRepository: ImageWebRepository = RealImageWebRepository(), cacheRepository: ImageCacheRepository = RealImageCacheRepository()) {
+        self.webRepository = webRepository
+        self.cacheRepository = cacheRepository
     }
-        
+    
     func loadImage(_ urlString: String) -> Publisher {
         guard let url = URL(string: urlString) else {
             return Fail(error: URLError(.badURL))
@@ -32,26 +35,23 @@ class ImageCache {
             return publisher
         }
         
-        if let nsdata = cachedImage(urlString) {
+        if let nsdata = cacheRepository.cachedImage(urlString) {
             return Just(Data(referencing: nsdata))
                 .setFailureType(to: URLError.self)
                 .receive(on: DispatchQueue.main)
                 .eraseToAnyPublisher()
         }
-        
-        let urlNSString = NSString(string: urlString)
-        let publisher = URLSession.shared.dataTaskPublisher(for: url)
-            .map(\.data)
-            .receive(on: DispatchQueue.main)
-            .handleEvents(receiveOutput: { [cache, weak self] data in
-                cache.setObject(NSData(data: data), forKey: urlNSString, cost: data.count)
+
+        let publisher = webRepository.loadImage(url)
+            .handleEvents(receiveOutput: { [cacheRepository, weak self] data in
+                cacheRepository.cache(data, forKey: urlString, cost: nil)
                 self?.publishers[urlString] = nil
             })
-            .share()
             .eraseToAnyPublisher()
         
         publishers[urlString] = publisher
+        
         return publisher
     }
-    
+
 }
