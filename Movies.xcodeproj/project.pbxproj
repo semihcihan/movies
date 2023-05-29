@@ -11,6 +11,11 @@
 		49263D0E29F94929002F864F /* DecodedTaskPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49263D0D29F94929002F864F /* DecodedTaskPublisher.swift */; };
 		49263D1129F964E7002F864F /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49263D1029F964E7002F864F /* AppEnvironment.swift */; };
 		49263D1329F966DA002F864F /* MovieRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49263D1229F966DA002F864F /* MovieRepository.swift */; };
+		4932A8432A20EE30009E792F /* EntityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4932A8422A20EE30009E792F /* EntityTests.swift */; };
+		4932A8452A20F11E009E792F /* Movie.json in Resources */ = {isa = PBXBuildFile; fileRef = 4932A8442A20F11E009E792F /* Movie.json */; };
+		4932A84A2A247E16009E792F /* Person.json in Resources */ = {isa = PBXBuildFile; fileRef = 4932A8482A247E16009E792F /* Person.json */; };
+		4932A84B2A247E16009E792F /* TV.json in Resources */ = {isa = PBXBuildFile; fileRef = 4932A8492A247E16009E792F /* TV.json */; };
+		4932A84D2A24845A009E792F /* Multi.json in Resources */ = {isa = PBXBuildFile; fileRef = 4932A84C2A24845A009E792F /* Multi.json */; };
 		493B23A52A1B615700DCC843 /* ImageWebRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493B23A42A1B615700DCC843 /* ImageWebRepository.swift */; };
 		493B23A72A1B632A00DCC843 /* ImageCacheRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493B23A62A1B632A00DCC843 /* ImageCacheRepository.swift */; };
 		493B23A92A1B678200DCC843 /* ImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493B23A82A1B678200DCC843 /* ImageService.swift */; };
@@ -56,6 +61,11 @@
 		49263D0D29F94929002F864F /* DecodedTaskPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodedTaskPublisher.swift; sourceTree = "<group>"; };
 		49263D1029F964E7002F864F /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
 		49263D1229F966DA002F864F /* MovieRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieRepository.swift; sourceTree = "<group>"; };
+		4932A8422A20EE30009E792F /* EntityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntityTests.swift; sourceTree = "<group>"; };
+		4932A8442A20F11E009E792F /* Movie.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Movie.json; sourceTree = "<group>"; };
+		4932A8482A247E16009E792F /* Person.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Person.json; sourceTree = "<group>"; };
+		4932A8492A247E16009E792F /* TV.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TV.json; sourceTree = "<group>"; };
+		4932A84C2A24845A009E792F /* Multi.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Multi.json; sourceTree = "<group>"; };
 		493B23A42A1B615700DCC843 /* ImageWebRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageWebRepository.swift; sourceTree = "<group>"; };
 		493B23A62A1B632A00DCC843 /* ImageCacheRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCacheRepository.swift; sourceTree = "<group>"; };
 		493B23A82A1B678200DCC843 /* ImageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageService.swift; sourceTree = "<group>"; };
@@ -186,6 +196,11 @@
 			isa = PBXGroup;
 			children = (
 				49DF747B29EDBF49001EE4D3 /* MoviesTests.swift */,
+				4932A8422A20EE30009E792F /* EntityTests.swift */,
+				4932A8442A20F11E009E792F /* Movie.json */,
+				4932A8482A247E16009E792F /* Person.json */,
+				4932A8492A247E16009E792F /* TV.json */,
+				4932A84C2A24845A009E792F /* Multi.json */,
 			);
 			path = MoviesTests;
 			sourceTree = "<group>";
@@ -368,6 +383,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4932A84B2A247E16009E792F /* TV.json in Resources */,
+				4932A84D2A24845A009E792F /* Multi.json in Resources */,
+				4932A84A2A247E16009E792F /* Person.json in Resources */,
+				4932A8452A20F11E009E792F /* Movie.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -410,6 +429,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4932A8432A20EE30009E792F /* EntityTests.swift in Sources */,
 				49DF747C29EDBF49001EE4D3 /* MoviesTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
