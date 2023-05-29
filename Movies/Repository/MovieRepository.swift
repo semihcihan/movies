@@ -33,7 +33,6 @@ struct RealMovieRepository: MovieRepository {
         self.init(baseUrl: try! PlistReader.value(for: "BASE_URL"), auth: try! PlistReader.value(for: "AUTHORIZATION"))
     }
     
-    //TODO: add tv
     func discoverList(page: Int, perPage: Int, rating: Int, mediaType: Media.MediaType?) -> AnyPublisher<ListSlice<Media>, Error> {
         let queryParams = [
             URLQueryItem(name: "page", value: String(page)),
@@ -48,9 +47,7 @@ struct RealMovieRepository: MovieRepository {
             path: "discover/movie",
             queryParameters: queryParams
         ).urlRequest
-        
-        print(request)
-        
+                
         return URLSession.shared
             .decodedTaskPublisher(for: request, decoder: decoder, decodeTo: ListSlice<Media>.self)
 
@@ -88,7 +85,7 @@ struct RealMovieRepository: MovieRepository {
             path: "trending/\(mediaTypePath)/week",
             queryParameters: queryParams
         ).urlRequest
-        print(request)
+        
         return URLSession.shared
             .decodedTaskPublisher(for: request, decoder: decoder, decodeTo: ListSlice<Media>.self)
     }

@@ -26,17 +26,7 @@ class RealMovieService: MovieService {
                 .receive(on: DispatchQueue.main)
                 .eraseToAnyPublisher()
         } else if let rating = rating {
-            return movieRepository.discoverList(page: 1, perPage: page, rating: rating, mediaType: mediaType).map {
-                var slice = $0
-                if let mediaType = mediaType {
-                    slice.results = slice.results.map { media in
-                        var media = media
-                        media.mediaType = mediaType
-                        return media
-                    }
-                }
-                return slice
-            }
+            return movieRepository.discoverList(page: 1, perPage: page, rating: rating, mediaType: mediaType)//
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
         } else {
@@ -46,4 +36,16 @@ class RealMovieService: MovieService {
         }
     }
 }
+
+//    .map {
+        //                var slice = $0
+        //                if let mediaType = mediaType {
+        //                    slice.results = slice.results.map { media in
+        //                        var media = media
+        //                        media.mediaType = mediaType
+        //                        return media
+        //                    }
+        //                }
+        //                return slice
+        //            }
 

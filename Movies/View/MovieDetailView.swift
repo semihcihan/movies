@@ -19,8 +19,8 @@ struct MovieDetailView: View {
         
     let animationDuration = 0.2
         
-    init(movie: Media?) {
-        _viewModel = StateObject(wrappedValue: { ViewModel(movie: movie) }())
+    init(media: Media?) {
+        _viewModel = StateObject(wrappedValue: { ViewModel(media: media) }())
     }
     
     var body: some View {
@@ -55,9 +55,9 @@ struct MovieDetailView: View {
                 )
                 
                 VStack(spacing: 8) {
-                    Text(viewModel.movie?.title ?? "")
+                    Text(viewModel.media?.displayedName ?? "")
                         .font(.largeTitle)
-                    Text(viewModel.movie?.overview ?? "")
+                    Text(viewModel.media?.overview ?? "")
                 }
                 .padding()
                 
@@ -65,7 +65,7 @@ struct MovieDetailView: View {
             }
         }
         .onAppear {
-            viewModel.loadImage(viewModel.movie?.backdropPath, size: MovieImageSize.BackdropSize.w780.rawValue)
+            viewModel.loadImage()
         }
         .onDisappear {
             viewModel.releaseImage()
@@ -77,12 +77,12 @@ extension MovieDetailView {
     class ViewModel: ObservableObject {
         @Published var image: UIImage?
         var error: ImageError?
-        var movie: Media?
+        var media: Media?
         var cancellable: Cancellable?
-        var imageService: ImageService
+        var imageService: ImageService        
 
-        init(movie: Media? = nil, imageService: ImageService = DIContainer.shared.resolve(type: ImageService.self)) {
-            self.movie = movie ?? Media.preview
+        init(media: Media? = nil, imageService: ImageService = DIContainer.shared.resolve(type: ImageService.self)) {
+            self.media = media ?? Media.movie(.preview)
             self.imageService = imageService
         }
         
@@ -91,8 +91,28 @@ extension MovieDetailView {
             case loadError = "Something went wrong while loading"
         }
         
-        func loadImage(_ path: String?, size: String) {
-            guard let path = path else {
+        func loadImage() {
+            var path: String?
+            var size: String?
+            
+            guard let media = media else {
+                self.error = ImageError.badURL
+                return
+            }
+            
+            switch media {
+                case .movie(let movie):
+                    path = movie.backdropPath
+                    size = MovieImageSize.PosterSize.w185.rawValue
+                case .tv(let tv):
+                    path = tv.backdropPath
+                    size = MovieImageSize.PosterSize.w185.rawValue
+                case .person(let person):
+                    path = person.profilePath
+                    size = MovieImageSize.ProfileSize.w185.rawValue
+            }
+            
+            guard let path = path, let size = size else {
                 self.error = ImageError.badURL
                 return
             }
@@ -122,6 +142,6 @@ extension MovieDetailView {
 
 struct MovieDetailView_Previews: PreviewProvider {
     static var previews: some View {
-        MovieDetailView(movie: Media.preview)
+        MovieDetailView(media: Media.movie(.preview))
     }
 }

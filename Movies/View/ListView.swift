@@ -16,14 +16,16 @@ struct ListView: View {
             if viewModel.list.count > 0 {
                     List {
                         Section {
-                            ForEach(viewModel.searchText.count > 0 ? viewModel.searchResults : viewModel.list) { movie in
-                                if movie.mediaType != .person {
-                                    NavigationLink(value: movie) {
-                                        MovieCellView(movie: movie)
-                                    }
-                                } else {
-                                    MovieCellView(movie: movie)
-                                }
+                            ForEach(viewModel.searchText.count > 0 ? viewModel.searchResults : viewModel.list, id: \.id) { media in
+                                
+                                switch media {
+                                    case .movie(_), .tv(_):
+                                        NavigationLink(value: media) {
+                                            MovieCellView(media: media)
+                                        }
+                                    default:
+                                        MovieCellView(media: media)
+                                }                                
                             }
                             
                             if viewModel.searchText.count == 0 && viewModel.canRequestMore {
@@ -65,15 +67,15 @@ struct ListView: View {
                         viewModel.fetch()
                     }
                     .navigationDestination(for: Media.self) { movie in
-                        MovieDetailView(movie: movie)
+                        MovieDetailView(media: movie)
                     }
             } else {
                 List {
-                    MovieCellView(movie: nil)
-                    MovieCellView(movie: nil)
-                    MovieCellView(movie: nil)
-                    MovieCellView(movie: nil)
-                    MovieCellView(movie: nil)
+                    MovieCellView(media: nil)
+                    MovieCellView(media: nil)
+                    MovieCellView(media: nil)
+                    MovieCellView(media: nil)
+                    MovieCellView(media: nil)
                 }
                 .onAppear {
                     viewModel.fetch()
@@ -245,7 +247,6 @@ extension ListView {
                 })
         }
     }
-    
 }
 
 

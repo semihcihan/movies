@@ -5,209 +5,61 @@
 //  Created by Semih Cihan on 26.04.2023.
 //
 
-class Medias: Identifiable, Equatable, Decodable, Hashable {
-    static func == (lhs: Medias, rhs: Medias) -> Bool {
-        lhs.id == rhs.id
-    }
-        
-    var id: Int
-    var adult: Bool?
-    var popularity: Double
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-    
-    init(id: Int, adult: Bool?, popularity: Double) {
-        self.id = id
-        self.adult = adult
-        self.popularity = popularity
-    }
-}
-
-class MovieTv: Medias {
-    var backdropPath: String
-    var genreIds: [Int]
-    var originalLanguage: String
-    var overview: String
-    var posterPath: String
-    var voteAverage: Double
-    var voteCount: Int
-    
-    
-    init(adult: Bool?, id: Int, popularity: Double, backdropPath: String, genreIds: [Int], originalLanguage: String, overview: String, posterPath: String, voteAverage: Double, voteCount: Int) {
-        self.backdropPath = backdropPath
-        self.genreIds = genreIds
-        self.originalLanguage = originalLanguage
-        self.overview = overview
-        self.posterPath = posterPath
-        self.voteAverage = voteAverage
-        self.voteCount = voteCount
-        
-        super.init(id: id, adult: adult, popularity: popularity)
-    }
-    
-    enum CodingKeys: String, CodingKey {
-        case backdropPath = "backdrop_path", genreIds = "genre_ids", originalLanguage = "original_language", overview, posterPath = "poster_path", voteAverage = "vote_average", voteCount = "vote_count"
-    }
-    
-    required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        backdropPath = try container.decode(String.self, forKey: .backdropPath)
-        genreIds = try container.decode([Int].self, forKey: .genreIds)
-        originalLanguage = try container.decode(String.self, forKey: .originalLanguage)
-        overview = try container.decode(String.self, forKey: .overview)
-        posterPath = try container.decode(String.self, forKey: .posterPath)
-        voteAverage = try container.decode(Double.self, forKey: .voteAverage)
-        voteCount = try container.decode(Int.self, forKey: .voteCount)
-                
-        try super.init(from: decoder)
-    }
-    
-//    enum CodingKeys: CodingKey {
-//        case adult
-//        case id
-//        case popularity
-//        case backdropPath
-//        case genreIds
-//        case originalLanguage
-//        case overview
-//        case posterPath
-//        case video
-//        case voteAverage
-//        case voteCount
-//    }
-//
-//    required init(from decoder: Decoder) throws {
-//        let container = try decoder.container(keyedBy: CodingKeys.self)
-//        self.adult = try container.decode(Bool.self, forKey: .adult)
-//        self.id = try container.decode(Int.self, forKey: .id)
-//        self.popularity = try container.decode(Double.self, forKey: .popularity)
-//        self.backdropPath = try container.decode(String.self, forKey: .backdropPath)
-//        self.genreIds = try container.decode([Int].self, forKey: .genreIds)
-//        self.originalLanguage = try container.decode(String.self, forKey: .originalLanguage)
-//        self.overview = try container.decode(String.self, forKey: .overview)
-//        self.posterPath = try container.decode(String.self, forKey: .posterPath)
-//        self.video = try container.decode(Bool.self, forKey: .video)
-//        self.voteAverage = try container.decode(Double.self, forKey: .voteAverage)
-//        self.voteCount = try container.decode(Int.self, forKey: .voteCount)
-//    }
-}
-
-class Movie: MovieTv {
-    var title: String
-    var originalTitle: String
-    var releaseDate: String
-    var video: Bool
-
-    init(adult: Bool?, id: Int, popularity: Double, backdropPath: String, genreIds: [Int], originalLanguage: String, overview: String, posterPath: String, voteAverage: Double, voteCount: Int, title: String, originalTitle: String, releaseDate: String, video: Bool) {
-        self.title = title
-        self.originalTitle = originalTitle
-        self.releaseDate = releaseDate
-        self.video = video
-        
-        super.init(adult: adult, id: id, popularity: popularity, backdropPath: backdropPath, genreIds: genreIds, originalLanguage: originalLanguage, overview: overview, posterPath: posterPath, voteAverage: voteAverage, voteCount: voteCount)
-    }
-    
-    enum CodingKeys: String, CodingKey {
-        case title, originalTitle = "original_title", releaseDate = "release_date", video
-    }
-    
-    required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        title = try container.decode(String.self, forKey: .title)
-        originalTitle = try container.decode(String.self, forKey: .title)
-        releaseDate = try container.decode(String.self, forKey: .title)
-        video = try container.decode(Bool.self, forKey: .video)
-
-        try super.init(from: decoder)
-    }
-}
-
-class TV: MovieTv {
-    var name: String
-    var originalName: String
-    var firstAirDate: String
-    
-    init(adult: Bool?, id: Int, popularity: Double, backdropPath: String, genreIds: [Int], originalLanguage: String, overview: String, posterPath: String, voteAverage: Double, voteCount: Int, name: String, originalName: String, firstAirDate: String) {
-        self.name = name
-        self.originalName = originalName
-        self.firstAirDate = firstAirDate
-        super.init(adult: adult, id: id, popularity: popularity, backdropPath: backdropPath, genreIds: genreIds, originalLanguage: originalLanguage, overview: overview, posterPath: posterPath, voteAverage: voteAverage, voteCount: voteCount)
-    }
-    
-    enum CodingKeys: String, CodingKey {
-        case name, originalName = "original_name", firstAirDate = "first_air_date"
-    }
-    
-    required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        name = try container.decode(String.self, forKey: .name)
-        originalName = try container.decode(String.self, forKey: .originalName)
-        firstAirDate = try container.decode(String.self, forKey: .firstAirDate)
-        
-        try super.init(from: decoder)
-    }
-}
-
-class Person: Medias {
-    var profilePath: String
-    var name: String
-
-    init(profilePath: String, name: String, adult: Bool?, id: Int, popularity: Double) {
-        self.profilePath = profilePath
-        self.name = name
-        super.init(id: id, adult: adult, popularity: popularity)
-    }
-    
-    enum CodingKeys: String, CodingKey {
-        case profilePath = "profile_path", name
-    }
-    
-    required init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        profilePath = try container.decode(String.self, forKey: .profilePath)
-        name = try container.decode(String.self, forKey: .name)
-                
-        try super.init(from: decoder)
-    }
-}
-
-struct Media: Decodable, Identifiable, Equatable, Hashable {
+struct Movie: Decodable, Identifiable, Equatable, Hashable {
     let adult: Bool
     let id: Int
     let popularity: Double
-    var mediaType: MediaType?
-    
     let backdropPath: String?
-    let genreIds: [Int]?
-    let originalLanguage: String?
-    let overview: String?
+    let genreIds: [Int]
+    let originalLanguage: String
+    let overview: String
     let posterPath: String?
-    let video: Bool?
-    let voteAverage: Double?
-    let voteCount: Int?
-    
-    let profilePath: String?
-    
-    let title: String?
-    let originalTitle: String?
-    let releaseDate: String?
+    let video: Bool
+    let voteAverage: Double
+    let voteCount: Int
+    let title: String
+    let originalTitle: String
+    let releaseDate: String
+}
 
-    let name: String?
-    let originalName: String?
-    let firstAirDate: String?
+struct TV: Decodable, Identifiable, Equatable, Hashable {
+    let id: Int
+    let popularity: Double
+    let backdropPath: String?
+    let genreIds: [Int]
+    let originalLanguage: String
+    let overview: String
+    let posterPath: String?
+    let voteAverage: Double
+    let voteCount: Int
+    var name: String
+    var originalName: String
+    var firstAirDate: String
+    let adult: Bool?
+}
+
+struct Person: Decodable, Identifiable, Equatable, Hashable {
+    let adult: Bool
+    let id: Int
+    let popularity: Double
+    var profilePath: String?
+    var name: String
+}
+
+enum Media {
+    case movie(Movie)
+    case tv(TV)
+    case person(Person)
     
-    var displayedTitle: String? {
-        title ?? name
-    }
-    
-    var displayedDate: String? {
-        releaseDate ?? firstAirDate
-    }
-    
-    var displayedOriginalName: String? {
-        originalTitle ?? originalName
+    var id: Int {
+        switch self {
+            case .movie(let movie):
+                return movie.id
+            case .tv(let tv):
+                return tv.id
+            case .person(let person):
+                return person.id
+        }
     }
     
     enum MediaType: String, Decodable {
@@ -217,32 +69,46 @@ struct Media: Decodable, Identifiable, Equatable, Hashable {
     }
 }
 
-extension Media {    
-    static var preview: Media = Media(
-        adult: false,
-        id: 1,
-        popularity: 48.261451,
-        mediaType: MediaType.movie,
-        backdropPath: "/ndlQ2Cuc3cjTL7lTynw6I4boP4S.jpg",
-        genreIds: [
-            14,
-            28,
-            80
-        ],
-        originalLanguage: "en",
-        overview: "From DC Comics comes the Suicide Squad, an antihero team of incarcerated supervillains who act as deniable assets for the United States government, undertaking high-risk black ops missions in exchange for commuted prison sentences.",
-        posterPath: "/e1mjopzAS2KNsvpbpahQ1a6SkSn.jpg",
-        video: false,
-        voteAverage: 5.12,
-        voteCount: 1466,
-        profilePath: "",
-        title: "Suicide Squad",
-        originalTitle: "Suicide Squad",
-        releaseDate: "2016-08-03",
-        name: "",
-        originalName: "",
-        firstAirDate: ""
-    )
+extension Media: Decodable, Hashable {
+    init(from decoder: Decoder) throws {
+        if let v = try? Movie(from: decoder) {
+            self = .movie(v)
+        } else if let v = try? TV(from: decoder) {
+            self = .tv(v)
+        } else if let v = try? Person(from: decoder) {
+            self = .person(v)
+        } else {
+            fatalError()
+        }
+    }
+}
+
+extension Person {
+    static var preview: Person = Person(adult: false, id: 500, popularity: 55.852, profilePath: "/yUsSJ0vO8AM9HnDQWuGKMSzCKOP.jpg", name: "Tom Cruise")
+}
+
+extension Media {
+    var displayedName: String {
+        switch self {
+            case .movie(let movie):
+                return movie.title
+            case .tv(let tv):
+                return tv.name
+            case .person(let person):
+                return person.name
+        }
+    }
+    
+    var overview: String? {
+        switch self {
+            case .movie(let movie):
+                return movie.overview
+            case .tv(let tv):
+                return tv.overview
+            default:
+                return nil
+        }
+    }
 }
 
 enum MovieImageSize {
@@ -270,6 +136,52 @@ enum MovieImageSize {
         case original
     }
 }
+
+struct ImagePath {
+    private static let baseUrl = "https://image.tmdb.org/t/p/"
+
+    static func path(path: String, size: String) -> String {
+        return baseUrl + "/" + size + "/" + path
+    }
+}
+
+extension Movie {
+    static var preview: Movie = Movie(
+        adult: false,
+        id: 389538,
+        popularity: 0.6,
+        backdropPath: "/jetHCwCGqNt3e7jYVUwtjgcCyDn.jpg",
+        genreIds: [12, 99],
+        originalLanguage: "en",
+        overview: "Tom Ballard lives with his father James in a campsite in the Dolomites. Tom's mother, Alison Hargreaves died descending K2 when he was just 6 years old. Despite this, he never wanted to be anywhere other than in the mountains. His whole life is dedicated to climbing and his last goal is to solo the Six North Faces of the Alps in a single winter season. Nobody has achieved this before, and he wants to be the first. In a white van driven by James, Tom will travel through the Alps to make his dream come true.",
+        posterPath: "/ahofH2q9gBjgGA5MRTl8c4AY05A.jpg",
+        video: false,
+        voteAverage: 10.0,
+        voteCount: 1,
+        title: "Tom",
+        originalTitle: "Tom",
+        releaseDate: "2015-03-25"
+    )
+}
+
+extension TV {
+    static var preview: TV = TV(
+        id: 72879,
+        popularity: 600.335,
+        backdropPath: "/9TXcHOeCsM8W3ZKKIKjdYUsRSeq.jpg",
+        genreIds: [80, 18],
+        originalLanguage: "en",
+        overview: "The story revolves around the people of Sète, France. Their lives are punctuated by family rivalries, romance and scenes from daily life, but also by plots involving police investigations, secrets and betrayals.",
+        posterPath: "/3uU5uJzOX7xe7mn7YKpBM9oiEZO.jpg",
+        voteAverage: 6.7,
+        voteCount: 14,
+        name: "Tom",
+        originalName: "Tom",
+        firstAirDate: "2017-07-17",
+        adult: false
+    )
+}
+
 
 //enum Genre: Int, String) {
 //    case Action = (28, "Action")
@@ -357,12 +269,3 @@ enum MovieImageSize {
 //        ]
 //    }
 //}
-
-
-struct ImagePath {
-    private static let baseUrl = "https://image.tmdb.org/t/p/"
-
-    static func path(path: String, size: String) -> String {
-        return baseUrl + "/" + size + "/" + path
-    }
-}

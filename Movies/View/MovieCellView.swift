@@ -11,9 +11,9 @@ import Combine
 struct MovieCellView: View {
     @StateObject var viewModel: ViewModel
     
-    init(movie: Media?) {
+    init(media: Media?) {
         _viewModel = StateObject(wrappedValue: {
-            let vm = ViewModel(movie: movie)
+            let vm = ViewModel(media: media)
             vm.loadImage()
             return vm
         }())
@@ -38,9 +38,9 @@ struct MovieCellView: View {
                 .clipShape(Rectangle())
             
             VStack(alignment: .leading, spacing: 8) {
-                Text(viewModel.movie?.displayedTitle ?? "")
+                Text(viewModel.media?.displayedName ?? "")
                     .font(.headline)
-                Text(viewModel.movie?.overview ?? "")
+                Text(viewModel.media?.overview ?? "")
                     .font(.subheadline)
                     .lineLimit(3)
             }
@@ -60,15 +60,15 @@ extension MovieCellView {
     class ViewModel: ObservableObject {
         @Published var image: UIImage?
         var error: ImageError?
-        var movie: Media?
+        var media: Media?
         var cancellable: Cancellable?
         var imageService: ImageService
         var redacted: Bool
         
-        init(movie: Media? = nil, imageService: ImageService = DIContainer.shared.resolve(type: ImageService.self)) {
-            self.movie = movie ?? Media.preview
+        init(media: Media? = nil, imageService: ImageService = DIContainer.shared.resolve(type: ImageService.self)) {
+            self.media = media ?? .movie(Movie.preview)
             self.imageService = imageService
-            self.redacted = movie == nil
+            self.redacted = media == nil
         }
         
         enum ImageError: String, Error {
@@ -79,15 +79,22 @@ extension MovieCellView {
         func loadImage() {
             var posterPath: String?
             var size: String?
-            if movie?.posterPath != nil {
-                posterPath = movie?.posterPath
-                size = MovieImageSize.PosterSize.w185.rawValue
-            } else if movie?.backdropPath != nil {
-                posterPath = movie?.backdropPath
-                size = MovieImageSize.BackdropSize.w300.rawValue
-            } else {
-                posterPath = movie?.profilePath
-                size = MovieImageSize.ProfileSize.w185.rawValue
+            
+            guard let media = media else {
+                self.error = ImageError.badURL
+                return
+            }
+            
+            switch media {
+                case .movie(let movie):
+                    posterPath = movie.posterPath
+                    size = MovieImageSize.PosterSize.w185.rawValue
+                case .tv(let tv):
+                    posterPath = tv.posterPath
+                    size = MovieImageSize.PosterSize.w185.rawValue
+                case .person(let person):
+                    posterPath = person.profilePath
+                    size = MovieImageSize.ProfileSize.w185.rawValue
             }
             
             guard let path = posterPath, let size = size else {
@@ -121,6 +128,6 @@ extension MovieCellView {
 
 struct MovieCellView_Previews: PreviewProvider {
     static var previews: some View {
-        MovieCellView(movie: Media.preview)
+        MovieCellView(media: Media.movie(Movie.preview))
     }
 }
