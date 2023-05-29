@@ -14,7 +14,7 @@ struct ContentView: View {
         TabView(selection: $selectedTab) {
             ListView(viewModel: ListView.ViewModel(service: DIContainer.shared.resolve(type: RealMovieService.self)))
                 .tabItem {
-                    Label("Top", systemImage: "star")
+                    Label("Top", systemImage: "popcorn")
                 }
         }
     }

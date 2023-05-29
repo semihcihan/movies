@@ -13,7 +13,7 @@ struct ListView: View {
     
     var body: some View {
         NavigationStack(path: $viewModel.paths) {
-            if viewModel.list.count > 0 {
+            if viewModel.list.count > 0 || viewModel.selectedMediaIndex != nil || viewModel.selectedRatingIndex != nil {
                     List {
                         Section {
                             ForEach(viewModel.searchText.count > 0 ? viewModel.searchResults : viewModel.list, id: \.id) { media in
@@ -252,16 +252,26 @@ extension ListView {
 
 
 struct CrumbSelection: View {
-    @Binding var selectedTitleIndex: Int?
-    let transition: AnyTransition = .scale.combined(with: .opacity)
-    var titles: [String]
+    @Binding private var selectedTitleIndex: Int?
+    private var transition: AnyTransition
+    private var titles: [String]?
+    private var labels: [Label<Text, Image>]?
     
-    init(selectedTitleIndex: Binding<Int?>, titles: [String]) {
+    init(selectedTitleIndex: Binding<Int?>, titles: [String], transition: AnyTransition = .scale.combined(with: .opacity)) {
         self._selectedTitleIndex = selectedTitleIndex
         self.titles = titles
+        self.transition = transition
+    }
+    
+    init(selectedTitleIndex: Binding<Int?>, labels: [Label<Text, Image>], transition: AnyTransition = .scale.combined(with: .opacity)) {
+        self._selectedTitleIndex = selectedTitleIndex
+        self.labels = labels
+        self.transition = transition
     }
     
     var body: some View {
+        let count = titles != nil ? titles!.count : labels!.count
+        
         Group {
             HStack(spacing: 8) {
                 if selectedTitleIndex != nil {
@@ -278,7 +288,7 @@ struct CrumbSelection: View {
                     .transition(transition)
                 }
                 
-                ForEach(0..<titles.count, id: \.self) { index in
+                ForEach(0..<count, id: \.self) { index in
                     Button {
                         if selectedTitleIndex == index {
                             selectedTitleIndex = nil
@@ -286,16 +296,20 @@ struct CrumbSelection: View {
                             selectedTitleIndex = index
                         }
                     } label: {
-                        Text(titles[index])
-                            .padding(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
-                            .background {
-                                RoundedRectangle(cornerRadius: 20)
-                                    .fill(selectedTitleIndex == index ? .gray : .white)
-                            }
-                            .overlay {
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(.tertiary, lineWidth: 1)
-                            }
+                        if let titles = titles {
+                            Text(titles[index])
+                                .padding(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
+                                .background {
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .fill(selectedTitleIndex == index ? .gray : .white)
+                                }
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .stroke(.tertiary, lineWidth: 1)
+                                }
+                        } else {
+                            labels![index]
+                        }
                     }
                 }
                 .transition(.move(edge: .top))

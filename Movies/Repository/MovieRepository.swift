@@ -42,15 +42,35 @@ struct RealMovieRepository: MovieRepository {
             URLQueryItem(name: "vote_count.gte", value: String(100))
         ]
         
-        let request = NetworkRequest(
-            baseURL: "https://" + baseUrl,
-            path: "discover/movie",
-            queryParameters: queryParams
-        ).urlRequest
-                
-        return URLSession.shared
-            .decodedTaskPublisher(for: request, decoder: decoder, decodeTo: ListSlice<Media>.self)
-
+        if let mediaType = mediaType {
+            let request = NetworkRequest(
+                baseURL: "https://" + baseUrl,
+                path: "discover/\(mediaType.rawValue)",
+                queryParameters: queryParams
+            ).urlRequest
+            
+            return URLSession.shared
+                .decodedTaskPublisher(for: request, decoder: decoder, decodeTo: ListSlice<Media>.self)
+        } else {
+            let dataTaskPublishers = [Media.MediaType.movie, Media.MediaType.tv]
+                .map {
+                    NetworkRequest(
+                        baseURL: "https://" + baseUrl,
+                        path: "discover/\($0.rawValue)",
+                        queryParameters: queryParams
+                    ).urlRequest
+                }
+                .map {
+                    URLSession.shared.decodedTaskPublisher(for: $0, decoder: decoder, decodeTo: ListSlice<Media>.self)
+                }
+                                    
+            return Publishers.Zip(dataTaskPublishers[0], dataTaskPublishers[1])
+                .compactMap { a, b in
+                    return ListSlice(page: a.page, results: (a.results + b.results).shuffled(), totalPages: min(a.totalPages, b.totalPages), totalResults: min(a.totalResults, b.totalResults))
+                }
+                .eraseToAnyPublisher()
+        }
+        
     }
     
     func searchList(page: Int, perPage: Int, keyword: String) -> AnyPublisher<ListSlice<Media>, Error> {
