@@ -14,23 +14,41 @@ protocol GenreService {
 }
 
 class RealGenreService: GenreService {
+    typealias Publisher = AnyPublisher<[Genre], Error>
     private let genreRepository: GenreRepository
-    private var localGenres: [Genre] = []
+    private var cachedGenres: [Genre] = []
+    private let queue = DispatchQueue(label: "GenreLoader")
+    private var publisher: Publisher?
     
+    var cancellations: [AnyCancellable] = []
+
     init(genreRepository: GenreRepository) {
         self.genreRepository = genreRepository
     }
     
-    func genres() -> AnyPublisher<[Genre], Error> {
-        guard localGenres.isEmpty else {
-            return Just(localGenres).setFailureType(to: Error.self).eraseToAnyPublisher()
-        }
-        
-        return genreRepository.genres()
-            .map({ [weak self] in
-                self?.localGenres = $0
-                return $0
-            })
+    func genres() -> Publisher {
+        return Just("")
+            .receive(on: queue)
+            .flatMap { [weak self, cachedGenres, genreRepository, queue] _ -> Publisher in
+                guard cachedGenres.isEmpty else {
+                    return Just(cachedGenres).setFailureType(to: Error.self).eraseToAnyPublisher()
+                }
+                            
+                if let publisher = self?.publisher {
+                    return publisher
+                }
+                
+                let publisher = genreRepository.genres()
+                    .receive(on: queue)
+                    .handleEvents(receiveOutput: { output in
+                        self?.cachedGenres = output
+                    })
+                    .share()
+                    .eraseToAnyPublisher()
+                
+                self?.publisher = publisher
+                return publisher
+            }
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
