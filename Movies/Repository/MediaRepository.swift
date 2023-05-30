@@ -8,13 +8,13 @@
 import Foundation
 import Combine
 
-protocol MovieRepository {
+protocol MediaRepository {
     func trendingList(page: Int, perPage: Int, mediaType: Media.MediaType?) -> AnyPublisher<ListSlice<Media>, Error>
     func discoverList(page: Int, perPage: Int, rating: Int, mediaType: Media.MediaType?) -> AnyPublisher<ListSlice<Media>, Error>
     func searchList(page: Int, perPage: Int, keyword: String) -> AnyPublisher<ListSlice<Media>, Error>
 }
 
-struct RealMovieRepository: MovieRepository {
+struct RealMediaRepository: MediaRepository {
     private let baseUrl: String
     private let auth: String
     

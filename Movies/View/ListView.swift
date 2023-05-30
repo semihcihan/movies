@@ -21,10 +21,10 @@ struct ListView: View {
                                 switch media {
                                     case .movie(_), .tv(_):
                                         NavigationLink(value: media) {
-                                            MovieCellView(media: media)
+                                            MediaCellView(media: media)
                                         }
                                     default:
-                                        MovieCellView(media: media)
+                                        MediaCellView(media: media)
                                 }                                
                             }
                             
@@ -67,30 +67,20 @@ struct ListView: View {
                         viewModel.fetch()
                     }
                     .navigationDestination(for: Media.self) { movie in
-                        MovieDetailView(media: movie)
+                        MediaDetailView(media: movie)
                     }
             } else {
                 List {
-                    MovieCellView(media: nil)
-                    MovieCellView(media: nil)
-                    MovieCellView(media: nil)
-                    MovieCellView(media: nil)
-                    MovieCellView(media: nil)
+                    MediaCellView(media: nil)
+                    MediaCellView(media: nil)
+                    MediaCellView(media: nil)
+                    MediaCellView(media: nil)
+                    MediaCellView(media: nil)
                 }
                 .onAppear {
                     viewModel.fetch()
                 }
             }
-        }
-    }
-}
-
-extension View {
-    @ViewBuilder func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
-        if condition {
-            transform(self)
-        } else {
-            self
         }
     }
 }
@@ -158,7 +148,7 @@ extension ListView {
         @Published var selectedRatingIndex: Int?
         
         let ratings: [Int] = [6, 7, 8, 9]
-        let service: MovieService
+        let service: MediaService
         
         var selectedRating: Int?
         var mediaType: Media.MediaType?
@@ -169,7 +159,7 @@ extension ListView {
         var searchCancellable: AnyCancellable?
         var selectedRatingCancellable: AnyCancellable?
         
-        init(list: [Media] = [], error: String? = nil, searchResults: [Media] = [], searchText: String = "", service: MovieService = DIContainer.shared.resolve(type: MovieService.self)) {
+        init(list: [Media] = [], error: String? = nil, searchResults: [Media] = [], searchText: String = "", service: MediaService = DIContainer.shared.resolve(type: MediaService.self)) {
             self.error = error
             self.list = list
             self.service = service
@@ -325,6 +315,6 @@ struct CrumbSelection: View {
 
 struct ListView_Previews: PreviewProvider {
     static var previews: some View {
-        ListView(viewModel: ListView.ViewModel(service: RealMovieService(movieRepository: RealMovieRepository())))
+        ListView(viewModel: ListView.ViewModel(service: RealMediaService(movieRepository: RealMediaRepository())))
     }
 }

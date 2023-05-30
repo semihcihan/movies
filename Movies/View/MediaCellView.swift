@@ -8,7 +8,7 @@
 import SwiftUI
 import Combine
 
-struct MovieCellView: View {
+struct MediaCellView: View {
     @StateObject var viewModel: ViewModel
     
     init(media: Media?) {
@@ -56,7 +56,7 @@ struct MovieCellView: View {
     }
 }
 
-extension MovieCellView {
+extension MediaCellView {
     class ViewModel: ObservableObject {
         @Published var image: UIImage?
         var error: ImageError?
@@ -128,6 +128,6 @@ extension MovieCellView {
 
 struct MovieCellView_Previews: PreviewProvider {
     static var previews: some View {
-        MovieCellView(media: Media.movie(Movie.preview))
+        MediaCellView(media: Media.movie(Movie.preview))
     }
 }

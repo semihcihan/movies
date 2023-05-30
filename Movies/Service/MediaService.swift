@@ -9,14 +9,14 @@ import Foundation
 import Combine
 import SwiftUI
 
-protocol MovieService {
+protocol MediaService {
     func list(page: Int, mediaType: Media.MediaType?, search: String, rating: Int?) -> AnyPublisher<ListSlice<Media>, Error>
 }
 
-class RealMovieService: MovieService {
-    private let movieRepository: MovieRepository
+class RealMediaService: MediaService {
+    private let movieRepository: MediaRepository
     
-    init(movieRepository: MovieRepository) {
+    init(movieRepository: MediaRepository) {
         self.movieRepository = movieRepository
     }
     

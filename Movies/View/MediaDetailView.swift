@@ -8,7 +8,7 @@
 import SwiftUI
 import Combine
 
-struct MovieDetailView: View {
+struct MediaDetailView: View {
     @StateObject private var viewModel: ViewModel
     @State private var heartScale = 1.0
     @State private var imageScale = 1.0
@@ -22,7 +22,7 @@ struct MovieDetailView: View {
     init(media: Media?) {
         _viewModel = StateObject(wrappedValue: { ViewModel(media: media) }())
     }
-    
+
     var body: some View {
         ScrollView {
             VStack {
@@ -30,7 +30,8 @@ struct MovieDetailView: View {
                     if let image = viewModel.image {
                         Image(uiImage: image)
                             .resizable()
-                            .scaledToFit()
+                            .aspectRatio(CGSize(width: 500, height: 281), contentMode: .fit)
+                        
                     } else {
                         Color.white
                             .frame(height: 220)
@@ -43,27 +44,28 @@ struct MovieDetailView: View {
                         .foregroundColor(.pink)                        
                         .padding()
                         .onTapGesture {
-                            withAnimation(Animation.easeInOut(duration: animationDuration)) {
+                            withAnimation(.easeInOut(duration: animationDuration)) {
                                 heartScale = 1.2
                             }
 
-                            withAnimation(Animation.easeInOut(duration: animationDuration).delay(animationDuration)) {
+                            withAnimation(.easeInOut(duration: animationDuration).delay(animationDuration)) {
                                 heartScale = 1
                             }
                         },
-                    alignment: .bottomLeading
+                    alignment: .bottomTrailing
                 )
                 
-                VStack(spacing: 8) {
+                VStack(spacing: 12) {
                     Text(viewModel.media?.displayedName ?? "")
                         .font(.largeTitle)
                     Text(viewModel.media?.overview ?? "")
                 }
-                .padding()
+                .padding(20)
                 
                 Spacer()
             }
         }
+        .ignoresSafeArea()
         .onAppear {
             viewModel.loadImage()
         }
@@ -73,7 +75,7 @@ struct MovieDetailView: View {
     }
 }
 
-extension MovieDetailView {
+extension MediaDetailView {
     class ViewModel: ObservableObject {
         @Published var image: UIImage?
         var error: ImageError?
@@ -103,10 +105,10 @@ extension MovieDetailView {
             switch media {
                 case .movie(let movie):
                     path = movie.backdropPath
-                    size = MovieImageSize.PosterSize.w185.rawValue
+                    size = MovieImageSize.PosterSize.w500.rawValue
                 case .tv(let tv):
                     path = tv.backdropPath
-                    size = MovieImageSize.PosterSize.w185.rawValue
+                    size = MovieImageSize.PosterSize.w500.rawValue
                 case .person(let person):
                     path = person.profilePath
                     size = MovieImageSize.ProfileSize.w185.rawValue
@@ -142,6 +144,6 @@ extension MovieDetailView {
 
 struct MovieDetailView_Previews: PreviewProvider {
     static var previews: some View {
-        MovieDetailView(media: Media.movie(.preview))
+        MediaDetailView(media: Media.movie(.preview))
     }
 }
