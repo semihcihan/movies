@@ -12,11 +12,16 @@ protocol ImageWebRepository {
     func loadImage(_ url: URL) -> AnyPublisher<Data, URLError>
 }
 
-class RealImageWebRepository: ImageWebRepository {
+struct RealImageWebRepository: ImageWebRepository {
+    private let session: URLSession
+    
+    init(session: URLSession = .shared) {
+        self.session = session
+    }
+    
     func loadImage(_ url: URL) -> AnyPublisher<Data, URLError> {
-        return URLSession.shared.dataTaskPublisher(for: url)
+        return session.dataTaskPublisher(for: url)
             .map(\.data)
-            .share()
             .eraseToAnyPublisher()
     }
 }

@@ -17,6 +17,7 @@ protocol MediaRepository {
 struct RealMediaRepository: MediaRepository {
     private let baseUrl: String
     private let auth: String
+    private let session: URLSession
     
     private var decoder: JSONDecoder = {
         let decoder = JSONDecoder()
@@ -24,9 +25,10 @@ struct RealMediaRepository: MediaRepository {
         return decoder
     }()
     
-    init(baseUrl: String, auth: String) {
+    init(baseUrl: String, auth: String, session: URLSession = .shared) {
         self.baseUrl = baseUrl
         self.auth = auth
+        self.session = session
     }
     
     init() {
@@ -49,7 +51,7 @@ struct RealMediaRepository: MediaRepository {
                 queryParameters: queryParams
             ).urlRequest
             
-            return URLSession.shared
+            return session
                 .decodedTaskPublisher(for: request, decoder: decoder, decodeTo: ListSlice<Media>.self)
         } else {
             let dataTaskPublishers = [Media.MediaType.movie, Media.MediaType.tv]
@@ -87,7 +89,7 @@ struct RealMediaRepository: MediaRepository {
             queryParameters: queryParams
         ).urlRequest
         
-        return URLSession.shared
+        return session
             .decodedTaskPublisher(for: request, decoder: decoder, decodeTo: ListSlice<Media>.self)
     }
     
@@ -106,7 +108,7 @@ struct RealMediaRepository: MediaRepository {
             queryParameters: queryParams
         ).urlRequest
         
-        return URLSession.shared
+        return session
             .decodedTaskPublisher(for: request, decoder: decoder, decodeTo: ListSlice<Media>.self)
     }
 }

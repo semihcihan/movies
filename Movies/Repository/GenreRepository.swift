@@ -15,6 +15,7 @@ protocol GenreRepository {
 struct RealGenreRepository: GenreRepository {
     private let baseUrl: String
     private let auth: String
+    private let session: URLSession
     
     private var decoder: JSONDecoder = {
         let decoder = JSONDecoder()
@@ -22,9 +23,10 @@ struct RealGenreRepository: GenreRepository {
         return decoder
     }()
     
-    init(baseUrl: String, auth: String) {
+    init(baseUrl: String, auth: String, session: URLSession = .shared) {
         self.baseUrl = baseUrl
         self.auth = auth
+        self.session = session
     }
     
     init() {
@@ -45,7 +47,7 @@ struct RealGenreRepository: GenreRepository {
                 ).urlRequest
             }
             .map {
-                URLSession.shared.decodedTaskPublisher(for: $0, decoder: decoder, decodeTo: GenreResponse.self)
+                session.decodedTaskPublisher(for: $0, decoder: decoder, decodeTo: GenreResponse.self)
             }
         
         return Publishers.Zip(dataTaskPublishers[0], dataTaskPublishers[1])
