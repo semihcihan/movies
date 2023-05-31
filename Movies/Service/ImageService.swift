@@ -19,7 +19,7 @@ class RealImageService: ImageService {
     private let cacheRepository: ImageCacheRepository
     private var publishers = [String: Publisher]()
     
-    private let queue = DispatchQueue(label: "ImageService")
+    private let queue = DispatchQueue(label: "ImageService", qos: .userInitiated)
     
     init(webRepository: ImageWebRepository = RealImageWebRepository(), cacheRepository: ImageCacheRepository = RealImageCacheRepository()) {
         self.webRepository = webRepository

@@ -16,7 +16,6 @@ class RealImageWebRepository: ImageWebRepository {
     func loadImage(_ url: URL) -> AnyPublisher<Data, URLError> {
         return URLSession.shared.dataTaskPublisher(for: url)
             .map(\.data)
-            .receive(on: DispatchQueue.main)
             .share()
             .eraseToAnyPublisher()
     }

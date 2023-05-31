@@ -19,8 +19,17 @@ struct MediaDetailView: View {
         
     let animationDuration = 0.2
         
-    init(media: Media?) {
-        _viewModel = StateObject(wrappedValue: { ViewModel(media: media) }())
+    init(
+        media: Media?,
+        imageService: ImageService = DIContainer.shared.resolve(type: ImageService.self),
+        genreService: GenreService = DIContainer.shared.resolve(type: GenreService.self)
+    ) {
+        _viewModel = StateObject(wrappedValue: {
+            let vm = ViewModel(media: media)
+            vm.genreService = genreService
+            vm.imageService = imageService
+            return vm
+        }())
     }
 
     var body: some View {
@@ -54,6 +63,24 @@ struct MediaDetailView: View {
                         },
                     alignment: .bottomTrailing
                 )
+                                
+                ScrollView(.horizontal) {
+                    LazyHStack {
+                        Divider()
+                            .frame(height: 12)
+                        ForEach(viewModel.genres) { genre in
+                            Text(genre.name.uppercased())
+                                .font(.footnote)
+                                .fontWeight(.medium)
+                                .foregroundColor(.secondary)
+                            Divider()
+                                .frame(height: 12)
+                        }
+                    }
+                }
+                .offset(.init(width: 20, height: 4))
+                .scrollIndicators(.hidden)
+
                 
                 VStack(spacing: 12) {
                     Text(viewModel.media?.displayedName ?? "")
@@ -67,10 +94,10 @@ struct MediaDetailView: View {
         }
         .ignoresSafeArea()
         .onAppear {
-            viewModel.loadImage()
+            viewModel.load()
         }
         .onDisappear {
-            viewModel.releaseImage()
+            viewModel.cleanup()
         }
     }
 }
@@ -78,20 +105,55 @@ struct MediaDetailView: View {
 extension MediaDetailView {
     class ViewModel: ObservableObject {
         @Published var image: UIImage?
+        @Published var genres: [Genre] = []
         var error: ImageError?
         var media: Media?
-        var cancellable: Cancellable?
-        var imageService: ImageService        
+        var cancellables = Set<AnyCancellable>()
+        var imageService: ImageService
+        var genreService: GenreService
 
-        init(media: Media? = nil, imageService: ImageService = DIContainer.shared.resolve(type: ImageService.self)) {
+        init(
+            media: Media? = nil,
+            imageService: ImageService = DIContainer.shared.resolve(type: ImageService.self),
+            genreService: GenreService = DIContainer.shared.resolve(type: GenreService.self)
+        ) {
             self.media = media ?? Media.movie(.preview)
             self.imageService = imageService
+            self.genreService = genreService
         }
         
         enum ImageError: String, Error {
             case badURL = "Bad URL"
             case loadError = "Something went wrong while loading"
         }
+        
+        func load() {
+            loadImage()
+            loadGenres()
+        }
+        
+        func loadGenres() {
+            guard let media = media else {
+                return
+            }
+            
+            var mediaGenreIds: [Int] = []
+            switch media {
+                case .movie(let movie):
+                    mediaGenreIds = movie.genreIds
+                case .tv(let tv):
+                    mediaGenreIds = tv.genreIds
+                case .person(_):
+                    return
+            }
+            
+            genreService.genres().compactMap { allGenres in
+                allGenres.filter { mediaGenreIds.contains($0.id) }
+            }.sink { _ in } receiveValue: { genres in
+                self.genres = genres
+            }.store(in: &cancellables)
+        }
+
         
         func loadImage() {
             var path: String?
@@ -119,7 +181,7 @@ extension MediaDetailView {
                 return
             }
             
-            self.cancellable = imageService.loadImage(
+            imageService.loadImage(
                 ImagePath.path(path: path, size: size)
             )
             .sink { [weak self] _ in
@@ -131,11 +193,11 @@ extension MediaDetailView {
                 }
                 self?.image = image
                 self?.error = nil
-            }
+            }.store(in: &cancellables)
         }
         
-        func releaseImage() {
-            self.cancellable = nil
+        func cleanup() {
+            self.cancellables.removeAll()
             self.image = nil
             self.error = nil
         }
@@ -144,6 +206,6 @@ extension MediaDetailView {
 
 struct MovieDetailView_Previews: PreviewProvider {
     static var previews: some View {
-        MediaDetailView(media: Media.movie(.preview))
+        MediaDetailView(media: Media.movie(Movie.preview), genreService: PreviewGenreService())
     }
 }

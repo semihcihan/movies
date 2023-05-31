@@ -17,7 +17,7 @@ class RealGenreService: GenreService {
     typealias Publisher = AnyPublisher<[Genre], Error>
     private let genreRepository: GenreRepository
     private var cachedGenres: [Genre] = []
-    private let queue = DispatchQueue(label: "GenreLoader")
+    private let queue = DispatchQueue(label: "GenreLoader", qos: .userInitiated)
     private var publisher: Publisher?
     
     var cancellations: [AnyCancellable] = []
@@ -27,7 +27,7 @@ class RealGenreService: GenreService {
     }
     
     func genres() -> Publisher {
-        return Just("")
+        return Just(0)
             .receive(on: queue)
             .flatMap { [weak self, cachedGenres, genreRepository, queue] _ -> Publisher in
                 guard cachedGenres.isEmpty else {
@@ -49,8 +49,27 @@ class RealGenreService: GenreService {
                 self?.publisher = publisher
                 return publisher
             }
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
 }
 
+#if DEBUG
+
+struct PreviewGenreService: GenreService {    
+    func genres() -> AnyPublisher<[Genre], Error> {
+        return Just(
+            [
+                Genre(id: 1, name: "Action"),
+                Genre(id: 2, name: "Thriller"),
+                Genre(id: 3, name: "Comedy"),
+                Genre(id: 4, name: "Documentary"),
+                Genre(id: 5, name: "Horror"),
+            ]
+        )
+        .setFailureType(to: Error.self)
+        .eraseToAnyPublisher()
+    }
+}
+
+#endif
