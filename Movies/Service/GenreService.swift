@@ -10,65 +10,59 @@ import Combine
 import SwiftUI
 
 protocol GenreService {
-    func genres() -> AnyPublisher<[Genre], Error>
+    func genres() async throws -> [Genre]
+    func genres(id: [Int]) async throws -> [Genre]
 }
 
-class RealGenreService: GenreService {
-    typealias Publisher = AnyPublisher<[Genre], Error>
+actor RealGenreService: GenreService {
     private let genreRepository: GenreRepository
     private var cachedGenres: [Genre] = []
-    private let queue = DispatchQueue(label: "GenreLoader", qos: .userInitiated)
-    private var publisher: Publisher?
-    
-    var cancellations: [AnyCancellable] = []
+    private var task: Task<[Genre], Error>?
 
     init(genreRepository: GenreRepository) {
         self.genreRepository = genreRepository
     }
     
-    func genres() -> Publisher {
-        return Just(0)
-            .receive(on: queue)
-            .flatMap { [weak self, cachedGenres, genreRepository, queue] _ -> Publisher in
-                guard cachedGenres.isEmpty else {
-                    return Just(cachedGenres).setFailureType(to: Error.self).eraseToAnyPublisher()
-                }
-                            
-                if let publisher = self?.publisher {
-                    return publisher
-                }
+    func genres() async throws -> [Genre] {
+        guard cachedGenres.isEmpty else {
+            return cachedGenres
+        }
+        
+        if let task = task {
+            return try await task.value
+        }
+        
+        task = Task {
+            self.cachedGenres = try await genreRepository.genres()
+            return self.cachedGenres
+        }
                 
-                let publisher = genreRepository.genres()
-                    .receive(on: queue)
-                    .handleEvents(receiveOutput: { output in
-                        self?.cachedGenres = output
-                    })
-                    .share()
-                    .eraseToAnyPublisher()
-                
-                self?.publisher = publisher
-                return publisher
-            }
-            .receive(on: DispatchQueue.main)
-            .eraseToAnyPublisher()
+        return try await task!.value
+    }
+    
+    func genres(id: [Int]) async throws -> [Genre] {
+        return try await genres().filter({ genre in
+            id.contains(genre.id)
+        })
     }
 }
 
 #if DEBUG
 
-struct PreviewGenreService: GenreService {    
-    func genres() -> AnyPublisher<[Genre], Error> {
-        return Just(
-            [
-                Genre(id: 1, name: "Action"),
-                Genre(id: 2, name: "Thriller"),
-                Genre(id: 3, name: "Comedy"),
-                Genre(id: 4, name: "Documentary"),
-                Genre(id: 5, name: "Horror"),
-            ]
-        )
-        .setFailureType(to: Error.self)
-        .eraseToAnyPublisher()
+struct PreviewGenreService: GenreService {
+    
+    func genres() async throws -> [Genre] {
+        return [
+            Genre(id: 1, name: "Action"),
+            Genre(id: 2, name: "Thriller"),
+            Genre(id: 3, name: "Comedy"),
+            Genre(id: 4, name: "Documentary"),
+            Genre(id: 5, name: "Horror"),
+        ]
+    }
+    
+    func genres(id: [Int]) async throws -> [Genre] {
+        return []
     }
 }
 

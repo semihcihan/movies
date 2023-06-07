@@ -8,58 +8,45 @@
 import Foundation
 import Combine
 
-typealias Publisher = AnyPublisher<Data, URLError>
-
 protocol ImageService {
-    func loadImage(_ urlString: String) -> Publisher
+    func loadImage(_ urlString: String) async throws -> Data
 }
 
-class RealImageService: ImageService {
+actor RealImageService: ImageService {
     private let webRepository: ImageWebRepository
     private let cacheRepository: ImageCacheRepository
-    private var publishers = [String: Publisher]()
-    
-    private let queue = DispatchQueue(label: "ImageService", qos: .userInitiated)
-    
+    private var tasks = [String: Task<Data, Error>]()
+        
     init(webRepository: ImageWebRepository = RealImageWebRepository(), cacheRepository: ImageCacheRepository = RealImageCacheRepository()) {
         self.webRepository = webRepository
         self.cacheRepository = cacheRepository
     }
-    
-    func loadImage(_ urlString: String) -> Publisher {
+        
+    func loadImage(_ urlString: String) async throws -> Data {
         guard let url = URL(string: urlString) else {
-            return Fail(error: URLError(.badURL))
-                .receive(on: DispatchQueue.main)
-                .eraseToAnyPublisher()
+            throw URLError(.badURL)
         }
         
-        if let nsdata = cacheRepository.cachedImage(urlString) {
-            return Just(Data(referencing: nsdata))
-                .setFailureType(to: URLError.self)
-                .receive(on: DispatchQueue.main)
-                .eraseToAnyPublisher()
+        if let task = tasks[urlString] {
+            return try await task.value
         }
-        
-        return Just(url)
-            .receive(on: queue)
-            .flatMap { [weak self, webRepository, cacheRepository] url -> Publisher in
-                if let publisher = self?.publishers[urlString] {
-                    return publisher
-                }
-                
-                let publisher = webRepository.loadImage(url)
-                    .handleEvents(receiveOutput: { [cacheRepository, weak self] data in
-                        cacheRepository.cache(data, forKey: urlString, cost: nil)
-                        self?.publishers[urlString] = nil
-                    })
-                    .share()
-                    .eraseToAnyPublisher()
-                
-                self?.publishers[urlString] = publisher
-                return publisher
+
+        let task = Task {
+            if let nsdata = cacheRepository.cachedImage(urlString) {
+                tasks[urlString] = nil
+                return Data(referencing: nsdata)
             }
-            .receive(on: DispatchQueue.main)
-            .eraseToAnyPublisher()
+                        
+            defer {
+                tasks[urlString] = nil
+            }
+            let imageData = try await webRepository.loadImage(url)
+            cacheRepository.cache(imageData, forKey: urlString, cost: nil)            
+            return imageData
+        }
+        
+        tasks[urlString] = task
+        return try await task.value
     }
 
 }

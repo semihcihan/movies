@@ -30,7 +30,7 @@ final class DIContainer: DIContainerProtocol {
 
 extension DIContainer {
     static func bootstrap() {
-        DIContainer.shared.register(type: RealMediaService.self, component: RealMediaService(movieRepository: RealMediaRepository()))
+        DIContainer.shared.register(type: MediaService.self, component: RealMediaService(movieRepository: RealMediaRepository()))
         DIContainer.shared.register(type: ImageService.self, component: RealImageService())
         DIContainer.shared.register(type: GenreService.self, component: RealGenreService(genreRepository: RealGenreRepository()))
     }

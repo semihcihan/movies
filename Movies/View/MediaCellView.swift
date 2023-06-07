@@ -16,9 +16,7 @@ struct MediaCellView: View {
          genreService: GenreService = DIContainer.shared.resolve(type: GenreService.self)
     ) {
         _viewModel = StateObject(wrappedValue: {
-            let vm = ViewModel(media: media, imageService: imageService, genreService: genreService)
-            vm.load()
-            return vm
+            return ViewModel(media: media, imageService: imageService, genreService: genreService)
         }())
         
     }
@@ -73,22 +71,19 @@ struct MediaCellView: View {
                 .padding(.bottom)
             }
             .redacted(reason: viewModel.redacted ? .placeholder : [])
-            .onAppear {
-                viewModel.load()
-            }
-            .onDisappear {
-                viewModel.releaseImage()
+            .task {
+               await viewModel.load()
             }
     }
 }
 
 extension MediaCellView {
+    @MainActor
     class ViewModel: ObservableObject {
         @Published var image: UIImage?
         @Published var genres: [Genre] = []
         var error: ImageError?
         var media: Media?
-        var cancellables = Set<AnyCancellable>()
         var imageService: ImageService
         var genreService: GenreService
         var redacted: Bool
@@ -104,9 +99,16 @@ extension MediaCellView {
             self.redacted = media == nil
         }
         
-        func load() {
-            loadGenres()
-            loadImage()
+        func load() async {
+            await withTaskGroup(of: Void.self, body: { group in
+                group.addTask {
+                    await self.loadGenres()
+                }
+
+                group.addTask {
+                    await self.loadImage()
+                }
+            })
         }
         
         enum ImageError: String, Error {
@@ -114,7 +116,7 @@ extension MediaCellView {
             case loadError = "Something went wrong while loading"
         }
         
-        func loadGenres() {
+        func loadGenres() async {
             guard let media = media else {
                 return
             }
@@ -129,20 +131,30 @@ extension MediaCellView {
                     return
             }
             
-            genreService.genres().compactMap { allGenres in
-                allGenres.filter { mediaGenreIds.contains($0.id) }
-            }.sink { _ in } receiveValue: { genres in
-                self.genres = genres
-            }.store(in: &cancellables)
+            self.genres = (try? await genreService.genres(id: mediaGenreIds)) ?? []
         }
         
-        func loadImage() {
+        func loadImage() async {
+            do {
+                let data = try await imageService.loadImage(getImagePath())
+                try Task.checkCancellation()
+                guard let imageFromData = UIImage(data: data) else {
+                    throw ImageError.loadError
+                }
+                image = imageFromData
+                error = nil
+            } catch {
+                self.error = ImageError.loadError
+                image = nil
+            }
+        }
+        
+        func getImagePath() throws -> String {
             var posterPath: String?
             var size: String?
             
             guard let media = media else {
-                self.error = ImageError.badURL
-                return
+                throw ImageError.badURL
             }
             
             switch media {
@@ -158,30 +170,10 @@ extension MediaCellView {
             }
             
             guard let path = posterPath, let size = size else {
-                self.error = ImageError.badURL
-                return
+                throw ImageError.badURL
             }
             
-            imageService.loadImage(
-                ImagePath.path(path: path, size: size)
-            )
-                .sink { [weak self] _ in
-                    self?.error = ImageError.loadError
-                } receiveValue: { [weak self] data in
-                    guard let image = UIImage(data: data) else {
-                        self?.error = ImageError.loadError
-                        return
-                    }
-                    self?.image = image
-                    self?.error = nil
-                }
-                .store(in: &cancellables)
-        }
-        
-        func releaseImage() {
-            cancellables.removeAll()
-            image = nil
-            error = nil
+            return ImagePath.path(path: path, size: size)
         }
     }
 }

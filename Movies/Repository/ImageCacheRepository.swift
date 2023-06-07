@@ -8,18 +8,17 @@
 import Foundation
 import Combine
 
-protocol ImageCacheRepository {
+protocol ImageCacheRepository: Sendable {
     func cachedImage(_ url: String) -> NSData?
     func cache(_ data: Data, forKey: String, cost: Int?)
 }
 
-struct RealImageCacheRepository: ImageCacheRepository {
+struct RealImageCacheRepository: ImageCacheRepository, @unchecked Sendable {
     private var cache: NSCache = NSCache<NSString, NSData>()
     
     func cachedImage(_ url: String) -> NSData? {
         let urlNSString = NSString(string: url)
-        let data = cache.object(forKey: urlNSString)
-        return data
+        return cache.object(forKey: urlNSString)
     }
     
     func cache(_ data: Data, forKey: String, cost: Int? = nil) {

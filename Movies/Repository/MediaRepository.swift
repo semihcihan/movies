@@ -9,9 +9,9 @@ import Foundation
 import Combine
 
 protocol MediaRepository {
-    func trendingList(page: Int, perPage: Int, mediaType: Media.MediaType?) -> AnyPublisher<ListSlice<Media>, Error>
-    func discoverList(page: Int, perPage: Int, rating: Int, mediaType: Media.MediaType?) -> AnyPublisher<ListSlice<Media>, Error>
-    func searchList(page: Int, perPage: Int, keyword: String) -> AnyPublisher<ListSlice<Media>, Error>
+    func trendingList(page: Int, perPage: Int, mediaType: Media.MediaType?) async throws -> ListSlice<Media>
+    func discoverList(page: Int, perPage: Int, rating: Int, mediaType: Media.MediaType?) async throws -> ListSlice<Media>
+    func searchList(page: Int, perPage: Int, keyword: String) async throws -> ListSlice<Media>
 }
 
 struct RealMediaRepository: MediaRepository {
@@ -33,9 +33,9 @@ struct RealMediaRepository: MediaRepository {
     
     init() {
         self.init(baseUrl: try! PlistReader.value(for: "BASE_URL"), auth: try! PlistReader.value(for: "AUTHORIZATION"))
-    }
+    }        
     
-    func discoverList(page: Int, perPage: Int, rating: Int, mediaType: Media.MediaType?) -> AnyPublisher<ListSlice<Media>, Error> {
+    func discoverList(page: Int, perPage: Int, rating: Int, mediaType: Media.MediaType?) async throws -> ListSlice<Media> {
         let queryParams = [
             URLQueryItem(name: "page", value: String(page)),
             URLQueryItem(name: "per_page", value: String(perPage)),
@@ -51,31 +51,32 @@ struct RealMediaRepository: MediaRepository {
                 queryParameters: queryParams
             ).urlRequest
             
-            return session
-                .decodedTaskPublisher(for: request, decoder: decoder, decodeTo: ListSlice<Media>.self)
+            let data = try await session.data(for: request).0
+            return try decoder.decode(ListSlice<Media>.self, from: data)
         } else {
-            let dataTaskPublishers = [Media.MediaType.movie, Media.MediaType.tv]
-                .map {
+            let requests = [Media.MediaType.movie, Media.MediaType.tv]
+                .map { media in
                     NetworkRequest(
                         baseURL: "https://" + baseUrl,
-                        path: "discover/\($0.rawValue)",
+                        path: "discover/\(media.rawValue)",
                         queryParameters: queryParams
                     ).urlRequest
                 }
-                .map {
-                    URLSession.shared.decodedTaskPublisher(for: $0, decoder: decoder, decodeTo: ListSlice<Media>.self)
-                }
-                                    
-            return Publishers.Zip(dataTaskPublishers[0], dataTaskPublishers[1])
-                .compactMap { a, b in
-                    return ListSlice(page: a.page, results: (a.results + b.results).shuffled(), totalPages: min(a.totalPages, b.totalPages), totalResults: min(a.totalResults, b.totalResults))
-                }
-                .eraseToAnyPublisher()
+            
+            async let (data1, _) = session.data(for: requests[0])
+            async let (data2, _) = session.data(for: requests[1])
+            
+            let response = try await [data1, data2]
+                .map({ d in
+                    try decoder.decode(ListSlice<Media>.self, from: d)
+                })
+
+            return ListSlice(page: response[0].page, results: (response[0].results + response[1].results).shuffled(), totalPages: min(response[0].totalPages, response[1].totalPages), totalResults: min(response[0].totalResults, response[1].totalResults))
         }
         
     }
     
-    func searchList(page: Int, perPage: Int, keyword: String) -> AnyPublisher<ListSlice<Media>, Error> {
+    func searchList(page: Int, perPage: Int, keyword: String) async throws -> ListSlice<Media> {
         let queryParams = [
             URLQueryItem(name: "page", value: String(page)),
             URLQueryItem(name: "per_page", value: String(perPage)),
@@ -89,11 +90,11 @@ struct RealMediaRepository: MediaRepository {
             queryParameters: queryParams
         ).urlRequest
         
-        return session
-            .decodedTaskPublisher(for: request, decoder: decoder, decodeTo: ListSlice<Media>.self)
+        let data = try await session.data(for: request).0
+        return try decoder.decode(ListSlice<Media>.self, from: data)
     }
     
-    func trendingList(page: Int, perPage: Int, mediaType: Media.MediaType?) -> AnyPublisher<ListSlice<Media>, Error> {
+    func trendingList(page: Int, perPage: Int, mediaType: Media.MediaType?) async throws -> ListSlice<Media> {
         let queryParams = [
             URLQueryItem(name: "page", value: String(page)),
             URLQueryItem(name: "per_page", value: String(perPage)),
@@ -108,7 +109,7 @@ struct RealMediaRepository: MediaRepository {
             queryParameters: queryParams
         ).urlRequest
         
-        return session
-            .decodedTaskPublisher(for: request, decoder: decoder, decodeTo: ListSlice<Media>.self)
+        let data = try await session.data(for: request).0
+        return try decoder.decode(ListSlice<Media>.self, from: data)
     }
 }

@@ -50,7 +50,7 @@ struct MediaDetailView: View {
                     Image(systemName: "heart")
                         .font(.largeTitle)
                         .scaleEffect(heartScale)
-                        .foregroundColor(.pink)                        
+                        .foregroundColor(.pink)
                         .padding()
                         .onTapGesture {
                             withAnimation(.easeInOut(duration: animationDuration)) {
@@ -103,12 +103,12 @@ struct MediaDetailView: View {
 }
 
 extension MediaDetailView {
+    @MainActor
     class ViewModel: ObservableObject {
         @Published var image: UIImage?
         @Published var genres: [Genre] = []
         var error: ImageError?
         var media: Media?
-        var cancellables = Set<AnyCancellable>()
         var imageService: ImageService
         var genreService: GenreService
 
@@ -128,11 +128,16 @@ extension MediaDetailView {
         }
         
         func load() {
-            loadImage()
-            loadGenres()
+            Task {
+                await loadImage()
+            }
+            
+            Task {
+                await loadGenres()
+            }
         }
         
-        func loadGenres() {
+        func loadGenres() async {
             guard let media = media else {
                 return
             }
@@ -147,15 +152,10 @@ extension MediaDetailView {
                     return
             }
             
-            genreService.genres().compactMap { allGenres in
-                allGenres.filter { mediaGenreIds.contains($0.id) }
-            }.sink { _ in } receiveValue: { genres in
-                self.genres = genres
-            }.store(in: &cancellables)
+            self.genres = (try? await genreService.genres(id: mediaGenreIds)) ?? []
         }
-
         
-        func loadImage() {
+        func loadImage() async {
             var path: String?
             var size: String?
             
@@ -181,23 +181,19 @@ extension MediaDetailView {
                 return
             }
             
-            imageService.loadImage(
-                ImagePath.path(path: path, size: size)
-            )
-            .sink { [weak self] _ in
-                self?.error = ImageError.loadError
-            } receiveValue: { [weak self] data in
-                guard let image = UIImage(data: data) else {
-                    self?.error = ImageError.loadError
-                    return
+            do {
+                let data = try await imageService.loadImage(ImagePath.path(path: path, size: size))
+                guard let imageFromData = UIImage(data: data) else {
+                    throw ImageError.loadError
                 }
-                self?.image = image
-                self?.error = nil
-            }.store(in: &cancellables)
+                image = imageFromData
+                error = nil
+            } catch {
+                self.error = ImageError.loadError
+            }
         }
         
         func cleanup() {
-            self.cancellables.removeAll()
             self.image = nil
             self.error = nil
         }

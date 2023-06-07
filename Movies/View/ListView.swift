@@ -138,6 +138,7 @@ struct SearchBar: View {
 }
 
 extension ListView {
+    @MainActor
     class ViewModel: ObservableObject {
         @Published var list: [Media]
         @Published var searchResults: [Media]
@@ -175,6 +176,7 @@ extension ListView {
                     default:
                         self?.mediaType = nil
                 }
+                
                 self?.page = 0
                 self?.totalPages = 1
                 self?.fetch()
@@ -186,6 +188,7 @@ extension ListView {
                 } else {
                     self?.selectedRating = nil
                 }
+                
                 self?.page = 0
                 self?.totalPages = 1
                 self?.fetch()
@@ -203,38 +206,36 @@ extension ListView {
         }
         
         func fetch() {
-            let isSearch = searchText.count > 0
-            guard isSearch || canRequestMore else {
-                return
-            }
-                        
-            cancellable = service.list(
-                page: searchText.count > 0 ? 1 : page + 1,
-                mediaType: mediaType,
-                search: searchText,
-                rating: selectedRating)
-                .sink(receiveCompletion: { [weak self] failure in
-                    switch failure {
-                        case .failure(let err):
-                            self?.error = err.localizedDescription
-                        default:
-                            break
-                    }
-                }, receiveValue: { [weak self] output in
+            Task {
+                let isSearch = searchText.count > 0
+                guard isSearch || canRequestMore else {
+                    return
+                }
+                
+                do {
+                    let result = try await service.list(
+                        page: searchText.count > 0 ? 1 : page + 1,
+                        mediaType: mediaType,
+                        search: searchText,
+                        rating: selectedRating)
+                    
                     if isSearch {
-                        self?.searchResults = output.results
+                        self.searchResults = result.results
                     } else {
-                        self?.searchResults = []
-                        if output.page == 1 {
-                            self?.list = output.results
+                        self.searchResults = []
+                        if result.page == 1 {
+                            self.list = result.results
                         } else {
-                            self?.list = (self?.list ?? []) + output.results
+                            self.list = self.list + result.results
                         }
-                        self?.page = output.page
-                        self?.totalPages = output.totalPages
+                        self.page = result.page
+                        self.totalPages = result.totalPages
                     }
-                    self?.error = nil
-                })
+                    self.error = nil
+                } catch {
+                    self.error = error.localizedDescription
+                }
+            }
         }
     }
 }

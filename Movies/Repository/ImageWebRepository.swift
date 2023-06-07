@@ -8,20 +8,18 @@
 import Foundation
 import Combine
 
-protocol ImageWebRepository {
-    func loadImage(_ url: URL) -> AnyPublisher<Data, URLError>
+protocol ImageWebRepository: Sendable {
+    func loadImage(_ url: URL) async throws -> Data
 }
 
-struct RealImageWebRepository: ImageWebRepository {
+final class RealImageWebRepository: NSObject, ImageWebRepository {
     private let session: URLSession
     
     init(session: URLSession = .shared) {
         self.session = session
     }
     
-    func loadImage(_ url: URL) -> AnyPublisher<Data, URLError> {
-        return session.dataTaskPublisher(for: url)
-            .map(\.data)
-            .eraseToAnyPublisher()
+    func loadImage(_ url: URL) async throws -> Data {
+        return try await session.data(from: url).0
     }
 }

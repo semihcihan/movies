@@ -12,7 +12,7 @@ struct ContentView: View {
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            ListView(viewModel: ListView.ViewModel(service: DIContainer.shared.resolve(type: RealMediaService.self)))
+            ListView(viewModel: ListView.ViewModel(service: DIContainer.shared.resolve(type: MediaService.self)))
                 .tabItem {
                     Label("Top", systemImage: "popcorn")
                 }
