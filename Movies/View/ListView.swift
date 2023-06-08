@@ -155,7 +155,7 @@ extension ListView {
         var mediaType: Media.MediaType?
         var page: Int = 0
         var totalPages: Int = 1
-        var cancellable: AnyCancellable?
+
         var selectedMediaCancellable: AnyCancellable?
         var searchCancellable: AnyCancellable?
         var selectedRatingCancellable: AnyCancellable?
@@ -166,39 +166,56 @@ extension ListView {
             self.service = service
             self.searchText = searchText
             self.searchResults = searchResults
-            
-            selectedMediaCancellable = $selectedMediaIndex.dropFirst(1).sink { [weak self] index in
-                switch index {
-                    case 0:
-                        self?.mediaType = .movie
-                    case 1:
-                        self?.mediaType = .tv
-                    default:
-                        self?.mediaType = nil
+        }
+        
+        func setupFilterCallbacks() {
+            Task { [weak self] in
+                guard let self = self else {
+                    return
                 }
-                
-                self?.page = 0
-                self?.totalPages = 1
-                self?.fetch()
+                for await index in self.$selectedMediaIndex.values.dropFirst() {
+                    switch index {
+                        case 0:
+                            self.mediaType = .movie
+                        case 1:
+                            self.mediaType = .tv
+                        default:
+                            self.mediaType = nil
+                    }
+                    
+                    self.page = 0
+                    self.totalPages = 1
+                    self.fetch()
+                }
             }
             
-            selectedRatingCancellable = $selectedRatingIndex.dropFirst(1).sink { [weak self] index in
-                if let index = index {
-                    self?.selectedRating = self?.ratings[index]
-                } else {
-                    self?.selectedRating = nil
+            Task { [weak self] in
+                guard let self = self else {
+                    return
                 }
-                
-                self?.page = 0
-                self?.totalPages = 1
-                self?.fetch()
+                for await index in self.$selectedRatingIndex.values.dropFirst() {
+                    if let index = index {
+                        self.selectedRating = self.ratings[index]
+                    } else {
+                        self.selectedRating = nil
+                    }
+                    
+                    self.page = 0
+                    self.totalPages = 1
+                    self.fetch()
+                }
             }
             
-            searchCancellable = $searchText.sink(receiveValue: { [weak self] val in
-                if val.count == 0 {
-                    self?.searchResults = []
+            Task { [weak self] in
+                guard let self = self else {
+                    return
                 }
-            })
+                for await val in self.$searchText.values.dropFirst() {
+                    if val.count == 0 {
+                        self.searchResults = []
+                    }
+                }
+            }
         }
         
         var canRequestMore: Bool {
