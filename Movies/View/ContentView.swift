@@ -12,11 +12,11 @@ struct ContentView: View {
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            ListView(viewModel: ListView.ViewModel(service: DIContainer.shared.resolve(type: MediaService.self)))
+            ListView(viewModel: ListView.ViewModel())
                 .tabItem {
                     Label("Top", systemImage: "popcorn")
                 }
-        }
+        }        
     }
 }
 

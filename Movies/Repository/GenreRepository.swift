@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 protocol GenreRepository: Sendable {
-    func genres() async throws -> [Genre]
+    func genres() async throws -> [Media.MediaType: [Genre]]
 }
 
 struct RealGenreRepository: GenreRepository {
@@ -33,7 +33,7 @@ struct RealGenreRepository: GenreRepository {
         self.init(baseUrl: try! PlistReader.value(for: "BASE_URL"), auth: try! PlistReader.value(for: "AUTHORIZATION"))
     }
     
-    func genres() async throws -> [Genre] {
+    func genres() async throws -> [Media.MediaType: [Genre]] {
         let queryParams = [
             URLQueryItem(name: "api_key", value: auth)
         ]
@@ -47,18 +47,15 @@ struct RealGenreRepository: GenreRepository {
                 ).urlRequest
             }
         
-        async let (data1, _) = session.data(for: requests[0])
-        async let (data2, _) = session.data(for: requests[1])
+        async let (movieGenreResponse, _) = session.data(for: requests[0])
+        async let (tvGenreResponse, _) = session.data(for: requests[1])
                     
-        let genreSet = try await [data1, data2]
+        let genres = try await [movieGenreResponse, tvGenreResponse]
             .map({ d in
-                try decoder.decode(GenreResponse.self, from: d)
-            })
-            .reduce(Set<Genre>(), { partialResult, next in
-                return partialResult.union(next.genres)
+                try decoder.decode(GenreResponse.self, from: d).genres
             })
             
-        return Array(genreSet)
+        return [.movie: Array(genres[0]), .tv: Array(genres[1])]
     }    
 }
 

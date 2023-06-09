@@ -44,15 +44,15 @@ struct ListView: View {
                             if viewModel.searchText.count == 0 {
                                 VStack(spacing: 12) {
                                     HStack {
-                                        Image(systemName: "play.fill")
-                                            .frame(width: 20)
-                                        CrumbSelection(selectedTitleIndex: $viewModel.selectedMediaIndex, titles: ["Movie", "TV"])
-                                        Spacer()
-                                    }
-                                    HStack {
                                         Image(systemName: "star.fill")
                                             .frame(width: 20)
                                         CrumbSelection(selectedTitleIndex: $viewModel.selectedRatingIndex, titles: viewModel.ratings.map{ String($0) + "+" } )
+                                        Spacer()
+                                    }
+                                    HStack {
+                                        Image(systemName: "play.fill")
+                                            .frame(width: 20)
+                                        CrumbSelection(selectedTitleIndex: $viewModel.selectedMediaIndex, titles: ["Movie", "TV"])
                                         Spacer()
                                     }
                                 }
@@ -69,6 +69,7 @@ struct ListView: View {
                     .navigationDestination(for: Media.self) { movie in
                         MediaDetailView(media: movie)
                     }
+                    .navigationBarTitle("Movie Vision", displayMode: .large)
             } else {
                 List {
                     MediaCellView(media: nil)
@@ -85,58 +86,6 @@ struct ListView: View {
     }
 }
 
-struct SearchBar: View {
-    @Binding var searchText: String
-    @Binding var isSearching: Bool
-    @FocusState private var focused: Bool
-    let textFieldTransition: AnyTransition = .move(edge: .trailing).combined(with: .opacity)
-    let magnifyTransition: AnyTransition = .opacity
-    
-    var body: some View {
-        HStack {
-            if !isSearching {
-                Group {
-                    Spacer()
-                    Button {
-                        isSearching.toggle()
-                        focused.toggle()
-                    } label: {
-                        Image(systemName: "magnifyingglass")
-                    }
-                    .transition(magnifyTransition)
-                }
-                
-            } else {
-                Group {
-                    HStack {
-                        Image(systemName: "magnifyingglass")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                        TextField("Search", text: $searchText)
-                            .focused($focused)
-                    }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color(.systemGray4))
-                    }
-                    
-                    Button {
-                        isSearching.toggle()
-                        focused.toggle()
-                    } label: {
-                        Text("Cancel")
-                            .textCase(nil)
-                    }
-                }
-                .transition(textFieldTransition)
-            }
-        }
-        .frame(height: 30)
-    }
-}
-
 extension ListView {
     @MainActor
     class ViewModel: ObservableObject {
@@ -147,10 +96,12 @@ extension ListView {
         @Published var selectedMediaIndex: Int?
         @Published var searchText: String
         @Published var selectedRatingIndex: Int?
+        @Published var selectedCategoryIndex: Int?
         
         let ratings: [Int] = [6, 7, 8, 9]
-        let service: MediaService
-        
+        let mediaService: MediaService
+        let genreService: GenreService
+
         var selectedRating: Int?
         var mediaType: Media.MediaType?
         var page: Int = 0
@@ -160,12 +111,20 @@ extension ListView {
         var searchCancellable: AnyCancellable?
         var selectedRatingCancellable: AnyCancellable?
         
-        init(list: [Media] = [], error: String? = nil, searchResults: [Media] = [], searchText: String = "", service: MediaService = DIContainer.shared.resolve(type: MediaService.self)) {
+        init(list: [Media] = [],
+             error: String? = nil,
+             searchResults: [Media] = [],
+             searchText: String = "",
+             mediaService: MediaService = DIContainer.shared.resolve(type: MediaService.self),
+             genreService: GenreService = DIContainer.shared.resolve(type: GenreService.self)) {
             self.error = error
             self.list = list
-            self.service = service
+            self.mediaService = mediaService
+            self.genreService = genreService
             self.searchText = searchText
             self.searchResults = searchResults
+            
+            setupFilterCallbacks()
         }
         
         func setupFilterCallbacks() {
@@ -230,7 +189,7 @@ extension ListView {
                 }
                 
                 do {
-                    let result = try await service.list(
+                    let result = try await mediaService.list(
                         page: searchText.count > 0 ? 1 : page + 1,
                         mediaType: mediaType,
                         search: searchText,
@@ -309,7 +268,7 @@ struct CrumbSelection: View {
                                 .padding(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
                                 .background {
                                     RoundedRectangle(cornerRadius: 20)
-                                        .fill(selectedTitleIndex == index ? .gray : .white)
+                                        .fill(.tertiary.opacity(selectedTitleIndex == index ? 1 : 0))
                                 }
                                 .overlay {
                                     RoundedRectangle(cornerRadius: 20)
@@ -324,7 +283,7 @@ struct CrumbSelection: View {
             }
             .fixedSize()
             .frame(height: 35)
-            .animation(.easeInOut(duration: 0.6), value: selectedTitleIndex)
+            .animation(.easeInOut(duration: 0.3), value: selectedTitleIndex)
         }
     }
     
@@ -333,6 +292,6 @@ struct CrumbSelection: View {
 
 struct ListView_Previews: PreviewProvider {
     static var previews: some View {
-        ListView(viewModel: ListView.ViewModel(service: RealMediaService(movieRepository: RealMediaRepository())))
+        ListView(viewModel: ListView.ViewModel(mediaService: RealMediaService(movieRepository: RealMediaRepository())))
     }
 }

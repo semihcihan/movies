@@ -28,7 +28,7 @@ struct MediaCellView: View {
                     .opacity(0)
                     .aspectRatio(1, contentMode: .fit)
                     .overlay(
-                        LinearGradient(colors: [.white, .init(white: 0.8)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                        LinearGradient(colors: [Color("ImagePlaceholder"), Color("ImagePlaceholder").opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing)
                     )
                     .overlay(viewModel.image != nil ?
                              Image(uiImage: viewModel.image!)

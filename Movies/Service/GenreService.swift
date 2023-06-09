@@ -10,22 +10,30 @@ import Combine
 import SwiftUI
 
 protocol GenreService {
-    func genres() async throws -> [Genre]
+    func genres(mediaType: Media.MediaType?) async throws -> [Genre]
     func genres(id: [Int]) async throws -> [Genre]
 }
 
 actor RealGenreService: GenreService {
     private let genreRepository: GenreRepository
-    private var cachedGenres: [Genre] = []
+    private var cachedGenres: [Media.MediaType: [Genre]]?
     private var task: Task<[Genre], Error>?
 
     init(genreRepository: GenreRepository) {
         self.genreRepository = genreRepository
     }
     
-    func genres() async throws -> [Genre] {
-        guard cachedGenres.isEmpty else {
-            return cachedGenres
+    static func mediaTypeToGenres(mediaType: Media.MediaType? = nil, genres: [Media.MediaType: [Genre]]) -> [Genre] {
+        if let mediaType = mediaType {
+            return genres[mediaType] ?? []
+        } else {
+            return Array(Set((genres[.movie] ?? []) + (genres[.tv] ?? [])))
+        }
+    }
+    
+    func genres(mediaType: Media.MediaType? = nil) async throws -> [Genre] {
+        if let cachedGenres = cachedGenres {
+            return Self.mediaTypeToGenres(mediaType: mediaType, genres: cachedGenres)
         }
         
         if let task = task {
@@ -33,8 +41,8 @@ actor RealGenreService: GenreService {
         }
         
         task = Task {
-            self.cachedGenres = try await genreRepository.genres()
-            return self.cachedGenres
+            cachedGenres = try await genreRepository.genres()
+            return Self.mediaTypeToGenres(mediaType: mediaType, genres: cachedGenres!)
         }
                 
         return try await task!.value
@@ -50,8 +58,7 @@ actor RealGenreService: GenreService {
 #if DEBUG
 
 struct PreviewGenreService: GenreService {
-    
-    func genres() async throws -> [Genre] {
+    func genres(mediaType: Media.MediaType?) async throws -> [Genre] {
         return [
             Genre(id: 1, name: "Action"),
             Genre(id: 2, name: "Thriller"),
