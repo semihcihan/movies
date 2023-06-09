@@ -10,15 +10,7 @@ import Combine
 
 struct MediaDetailView: View {
     @StateObject private var viewModel: ViewModel
-    @State private var heartScale = 1.0
-    @State private var imageScale = 1.0
-    
-    @State private var magnificationPrevValue = 1.0
-    @State private var translationPrevValue: CGSize = .zero
-    @State private var imageOffset: CGSize = .zero
-        
-    let animationDuration = 0.2
-        
+                    
     init(
         media: Media?,
         imageService: ImageService = DIContainer.shared.resolve(type: ImageService.self),
@@ -46,23 +38,6 @@ struct MediaDetailView: View {
                             .frame(height: 220)
                     }
                 }
-                .overlay(
-                    Image(systemName: "heart")
-                        .font(.largeTitle)
-                        .scaleEffect(heartScale)
-                        .foregroundColor(.pink)
-                        .padding()
-                        .onTapGesture {
-                            withAnimation(.easeInOut(duration: animationDuration)) {
-                                heartScale = 1.2
-                            }
-
-                            withAnimation(.easeInOut(duration: animationDuration).delay(animationDuration)) {
-                                heartScale = 1
-                            }
-                        },
-                    alignment: .bottomTrailing
-                )
                                 
                 ScrollView(.horizontal) {
                     LazyHStack {
