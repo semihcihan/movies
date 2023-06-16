@@ -64,5 +64,4 @@ private extension RealGenreRepository {
     struct GenreResponse: Decodable, Hashable {
         var genres: Set<Genre>
     }
-    
 }

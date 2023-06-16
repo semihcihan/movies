@@ -23,6 +23,8 @@
 		493B23A72A1B632A00DCC843 /* ImageCacheRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493B23A62A1B632A00DCC843 /* ImageCacheRepository.swift */; };
 		493B23A92A1B678200DCC843 /* ImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493B23A82A1B678200DCC843 /* ImageService.swift */; };
 		493B23AB2A1B8E9200DCC843 /* DIContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493B23AA2A1B8E9200DCC843 /* DIContainer.swift */; };
+		4994189F2A37AB57007FBC6B /* ScannedMediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4994189E2A37AB57007FBC6B /* ScannedMediaView.swift */; };
+		49D9B79C2A33353200A5C676 /* ScannerViewControllerRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9B79B2A33353200A5C676 /* ScannerViewControllerRepresentable.swift */; };
 		49DF746B29EDBF48001EE4D3 /* MoviesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DF746A29EDBF48001EE4D3 /* MoviesApp.swift */; };
 		49DF746D29EDBF48001EE4D3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DF746C29EDBF48001EE4D3 /* ContentView.swift */; };
 		49DF746F29EDBF49001EE4D3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 49DF746E29EDBF49001EE4D3 /* Assets.xcassets */; };
@@ -75,6 +77,8 @@
 		493B23A62A1B632A00DCC843 /* ImageCacheRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCacheRepository.swift; sourceTree = "<group>"; };
 		493B23A82A1B678200DCC843 /* ImageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageService.swift; sourceTree = "<group>"; };
 		493B23AA2A1B8E9200DCC843 /* DIContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DIContainer.swift; sourceTree = "<group>"; };
+		4994189E2A37AB57007FBC6B /* ScannedMediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannedMediaView.swift; sourceTree = "<group>"; };
+		49D9B79B2A33353200A5C676 /* ScannerViewControllerRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerViewControllerRepresentable.swift; sourceTree = "<group>"; };
 		49DF746729EDBF48001EE4D3 /* Movies.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Movies.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		49DF746A29EDBF48001EE4D3 /* MoviesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoviesApp.swift; sourceTree = "<group>"; };
 		49DF746C29EDBF48001EE4D3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -238,6 +242,8 @@
 				49DF749829EDC130001EE4D3 /* ListView.swift */,
 				49DF74A529EDF428001EE4D3 /* MediaCellView.swift */,
 				49F7946529F159A800CD9AA0 /* MediaDetailView.swift */,
+				49D9B79B2A33353200A5C676 /* ScannerViewControllerRepresentable.swift */,
+				4994189E2A37AB57007FBC6B /* ScannedMediaView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -417,6 +423,7 @@
 				4932A84F2A24F4A4009E792F /* GenreRepository.swift in Sources */,
 				493B23A92A1B678200DCC843 /* ImageService.swift in Sources */,
 				493B23A52A1B615700DCC843 /* ImageWebRepository.swift in Sources */,
+				49D9B79C2A33353200A5C676 /* ScannerViewControllerRepresentable.swift in Sources */,
 				4932A8512A24F4D9009E792F /* Genre.swift in Sources */,
 				49263D1329F966DA002F864F /* MediaRepository.swift in Sources */,
 				49263D1129F964E7002F864F /* AppEnvironment.swift in Sources */,
@@ -427,6 +434,7 @@
 				49DF746B29EDBF48001EE4D3 /* MoviesApp.swift in Sources */,
 				493B23AB2A1B8E9200DCC843 /* DIContainer.swift in Sources */,
 				49DF749929EDC130001EE4D3 /* ListView.swift in Sources */,
+				4994189F2A37AB57007FBC6B /* ScannedMediaView.swift in Sources */,
 				49263D0E29F94929002F864F /* DecodedTaskPublisher.swift in Sources */,
 				49DF74A629EDF429001EE4D3 /* MediaCellView.swift in Sources */,
 				4932A8532A24F74A009E792F /* GenreService.swift in Sources */,
@@ -595,6 +603,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Movies/SupportingFiles/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Your camera is used to scan movies and shows.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -626,6 +636,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Movies/SupportingFiles/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Your camera is used to scan movies and shows.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

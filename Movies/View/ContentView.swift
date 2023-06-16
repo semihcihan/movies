@@ -8,15 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State var selectedTab: Int = 0
-    
     var body: some View {
-        TabView(selection: $selectedTab) {
-            ListView(viewModel: ListView.ViewModel())
-                .tabItem {
-                    Label("Top", systemImage: "popcorn")
-                }
-        }        
+        ListView(viewModel: ListView.ViewModel())            
     }
 }
 

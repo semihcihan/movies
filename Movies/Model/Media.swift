@@ -32,9 +32,9 @@ struct TV: Decodable, Identifiable, Equatable, Hashable {
     let posterPath: String?
     let voteAverage: Double
     let voteCount: Int
-    var name: String
-    var originalName: String
-    var firstAirDate: String
+    let name: String
+    let originalName: String
+    let firstAirDate: String
     let adult: Bool?
 }
 
@@ -42,8 +42,8 @@ struct Person: Decodable, Identifiable, Equatable, Hashable {
     let adult: Bool
     let id: Int
     let popularity: Double
-    var profilePath: String?
-    var name: String
+    let profilePath: String?
+    let name: String
 }
 
 enum Media {
@@ -66,6 +66,22 @@ enum Media {
         case movie
         case tv
         case person
+    }
+}
+
+extension Media {
+    var voteAverage: String? {
+        var voteAve: Double!
+        switch self {
+            case .movie(let movie):
+                voteAve = movie.voteAverage
+            case .tv(let tv):
+                voteAve = tv.voteAverage
+            case .person(_):
+                return nil
+        }
+        
+        return String(voteAve.formatted(.number.precision(.fractionLength(1))))
     }
 }
 

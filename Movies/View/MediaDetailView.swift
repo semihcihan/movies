@@ -41,6 +41,15 @@ struct MediaDetailView: View {
                                 
                 ScrollView(.horizontal) {
                     LazyHStack {
+                        if let voteAverage = viewModel.media?.voteAverage {
+                            Image(systemName: "star.fill")
+                                .frame(width: 20)
+                                .foregroundColor(.yellow)
+                                .shadow(radius: 1)
+                            Text(voteAverage)
+                                .fontWeight(Font.Weight.bold)
+                                .foregroundColor(.primary)
+                        }
                         Divider()
                             .frame(height: 12)
                         ForEach(viewModel.genres) { genre in
@@ -59,7 +68,7 @@ struct MediaDetailView: View {
                 
                 VStack(spacing: 12) {
                     Text(viewModel.media?.displayedName ?? "")
-                        .font(.largeTitle)
+                        .font(.title)
                     Text(viewModel.media?.overview ?? "")
                 }
                 .padding(20)
@@ -67,7 +76,7 @@ struct MediaDetailView: View {
                 Spacer()
             }
         }
-        .ignoresSafeArea()
+        .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             viewModel.load()
         }
@@ -176,7 +185,14 @@ extension MediaDetailView {
 }
 
 struct MovieDetailView_Previews: PreviewProvider {
+    @State static var paths: [Media] = [Media.movie(Movie.preview), Media.movie(Movie.preview)]
+    
     static var previews: some View {
-        MediaDetailView(media: Media.movie(Movie.preview), genreService: PreviewGenreService())
+        NavigationStack(path: $paths) {
+            MediaDetailView(media: Media.movie(Movie.preview), genreService: PreviewGenreService())
+        }
+        .navigationDestination(for: Media.self) { media in
+            MediaDetailView(media: Media.movie(Movie.preview), genreService: PreviewGenreService())
+        }
     }
 }

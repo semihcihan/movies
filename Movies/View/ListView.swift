@@ -12,8 +12,10 @@ struct ListView: View {
     @ObservedObject var viewModel: ViewModel
     
     var body: some View {
-        NavigationStack(path: $viewModel.paths) {
-            if viewModel.list.count > 0 || viewModel.selectedMediaIndex != nil || viewModel.selectedRatingIndex != nil {
+        NavigationStack(path: $viewModel.path) {
+            Group {
+                
+                if viewModel.list.count > 0 || viewModel.selectedMediaIndex != nil || viewModel.selectedRatingIndex != nil {
                     List {
                         Section {
                             ForEach(viewModel.searchText.count > 0 ? viewModel.searchResults : viewModel.list, id: \.id) { media in
@@ -69,30 +71,54 @@ struct ListView: View {
                     .navigationDestination(for: Media.self) { movie in
                         MediaDetailView(media: movie)
                     }
-                    .navigationBarTitle("Movie Vision", displayMode: .large)
-            } else {
-                List {
-                    MediaCellView(media: nil)
-                    MediaCellView(media: nil)
-                    MediaCellView(media: nil)
-                    MediaCellView(media: nil)
-                    MediaCellView(media: nil)
-                }
-                .onAppear {
-                    viewModel.fetch()
+                    .navigationDestination(for: String.self, destination: { _ in
+                        ScannerViewControllerRepresentable()
+                    })
+                } else {
+                    List {
+                        MediaCellView(media: nil)
+                        MediaCellView(media: nil)
+                        MediaCellView(media: nil)
+                        MediaCellView(media: nil)
+                        MediaCellView(media: nil)
+                    }
+                    .onAppear {
+                        viewModel.fetch()
+                    }
                 }
             }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        //TODO: check availability
+                        /**
+                         var scannerAvailable: Bool {
+                         DataScannerViewController.isSupported &&
+                         DataScannerViewController.isAvailable
+                         }
+                         */
+                        viewModel.path.append("")
+                    } label: {
+                        Image(systemName: "camera.fill")
+                    }
+                    
+                }
+            }
+            .navigationBarTitle("Movie Vision", displayMode: .large)
+
         }
     }
 }
+
+//TODO: check internet connection
 
 extension ListView {
     @MainActor
     class ViewModel: ObservableObject {
         @Published var list: [Media]
         @Published var searchResults: [Media]
-        @Published var error: String?
-        @Published var paths: [Media] = []
+        @Published var error: String? //TODO: error display
+        @Published var path: NavigationPath = NavigationPath()
         @Published var selectedMediaIndex: Int?
         @Published var searchText: String
         @Published var selectedRatingIndex: Int?
@@ -292,6 +318,8 @@ struct CrumbSelection: View {
 
 struct ListView_Previews: PreviewProvider {
     static var previews: some View {
-        ListView(viewModel: ListView.ViewModel(mediaService: RealMediaService(movieRepository: RealMediaRepository())))
+        NavigationStack {
+            ListView(viewModel: ListView.ViewModel(mediaService: RealMediaService(movieRepository: RealMediaRepository())))
+        }
     }
 }

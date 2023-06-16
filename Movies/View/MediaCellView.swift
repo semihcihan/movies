@@ -11,12 +11,18 @@ import Combine
 struct MediaCellView: View {
     @StateObject var viewModel: ViewModel
     
+    enum Size {
+        case `default`
+        case small
+    }
+    
     init(media: Media?,
+         size: Size = .default,
          imageService: ImageService = DIContainer.shared.resolve(type: ImageService.self),
          genreService: GenreService = DIContainer.shared.resolve(type: GenreService.self)
     ) {
         _viewModel = StateObject(wrappedValue: {
-            return ViewModel(media: media, imageService: imageService, genreService: genreService)
+            return ViewModel(media: media, size: size, imageService: imageService, genreService: genreService)
         }())
         
     }
@@ -24,7 +30,7 @@ struct MediaCellView: View {
     var body: some View {
             HStack {
                 Rectangle()
-                    .frame(width: 120, height: 150)
+                    .frame(width: viewModel.size == .default ? 120 : 40, height: viewModel.size == .default ? 150 : 50)
                     .opacity(0)
                     .aspectRatio(1, contentMode: .fit)
                     .overlay(
@@ -42,13 +48,25 @@ struct MediaCellView: View {
                     VStack (alignment: .leading) {
                         Text(viewModel.media?.displayedName ?? "")
                             .font(.headline)
-                        Text(viewModel.media?.overview ?? "")
-                            .font(.subheadline)
-                            .lineLimit(3)
+                        if viewModel.size == .default {
+                            Text(viewModel.media?.overview ?? "")
+                                .font(.subheadline)
+                                .lineLimit(3)
+                        }
                     }
                     
-                    ScrollView(.horizontal) {
+                    
+                    ScrollView(.horizontal) { //TODO: prevents selection                     
                         LazyHStack {
+                            if let voteAverage = viewModel.media?.voteAverage {
+                                Image(systemName: "star.fill")
+                                    .frame(width: 20)
+                                    .foregroundColor(.yellow)
+                                    .shadow(radius: 1)
+                                Text(voteAverage)
+                                    .fontWeight(Font.Weight.bold)
+                                    .foregroundColor(.primary)
+                            }
                             Divider()
                                 .frame(height: 12)
                             ForEach(viewModel.genres) { genre in
@@ -61,14 +79,14 @@ struct MediaCellView: View {
                             }
                         }
                     }
-                    .offset(.init(width: 0, height: 12))
+                    .offset(.init(width: 0, height: viewModel.size == .default ? 12 : 0))
                     .scrollIndicators(.hidden)
-                    .frame(height: 40)
+                    .frame(height: viewModel.size == .default ? 40 : 24)
                 }
-                .frame(height: 150)
+                .frame(height: viewModel.size == .default ? 150 : 50)
                 .padding(.leading)
-                .padding(.top)
-                .padding(.bottom)
+                .padding(.top, viewModel.size == .default ? 12 : 2)
+                .padding(.bottom, viewModel.size == .default ? 12 : 2)
             }
             .redacted(reason: viewModel.redacted ? .placeholder : [])
             .task {
@@ -82,6 +100,8 @@ extension MediaCellView {
     class ViewModel: ObservableObject {
         @Published var image: UIImage?
         @Published var genres: [Genre] = []
+        let size: MediaCellView.Size
+        
         var error: ImageError?
         var media: Media?
         var imageService: ImageService
@@ -90,10 +110,12 @@ extension MediaCellView {
         
         init(
             media: Media? = nil,
+            size: MediaCellView.Size = .default,
             imageService: ImageService = DIContainer.shared.resolve(type: ImageService.self),
             genreService: GenreService = DIContainer.shared.resolve(type: GenreService.self)
         ) {
             self.media = media ?? .movie(Movie.preview)
+            self.size = size
             self.imageService = imageService
             self.genreService = genreService
             self.redacted = media == nil
@@ -110,7 +132,7 @@ extension MediaCellView {
                 }
             })
         }
-        
+                
         enum ImageError: String, Error {
             case badURL = "Bad URL"
             case loadError = "Something went wrong while loading"
@@ -160,10 +182,10 @@ extension MediaCellView {
             switch media {
                 case .movie(let movie):
                     posterPath = movie.posterPath
-                    size = MovieImageSize.PosterSize.w185.rawValue
+                    size = self.size == .default ? MovieImageSize.PosterSize.w185.rawValue : MovieImageSize.PosterSize.w92.rawValue
                 case .tv(let tv):
                     posterPath = tv.posterPath
-                    size = MovieImageSize.PosterSize.w185.rawValue
+                    size = self.size == .default ? MovieImageSize.PosterSize.w185.rawValue : MovieImageSize.PosterSize.w92.rawValue
                 case .person(let person):
                     posterPath = person.profilePath
                     size = MovieImageSize.ProfileSize.w185.rawValue
@@ -181,7 +203,13 @@ extension MediaCellView {
 
 struct MovieCellView_Previews: PreviewProvider {
     static var previews: some View {
-        MediaCellView(media: Media.movie(Movie.preview), genreService: PreviewGenreService())
-            .previewLayout(.fixed(width: 500, height: 200))
+        VStack {
+            MediaCellView(media: Media.movie(Movie.preview), genreService: PreviewGenreService())
+                .previewLayout(.fixed(width: 500, height: 200))
+            Rectangle()
+                .frame(height: 20)
+            MediaCellView(media: Media.movie(Movie.preview), size: .small, genreService: PreviewGenreService())
+                .previewLayout(.fixed(width: 500, height: 200))
+        }
     }
 }
