@@ -11,36 +11,41 @@ import UIKit
 
 struct ScannedMediaView: View {
     @ObservedObject var viewModel: ViewModel
+    @EnvironmentObject var navigation: Navigation
     
+    var contentHeight: Bool {
+        return !viewModel.searchText.isEmpty
+    }
+
     var body: some View {
-        NavigationStack {
+        ScrollViewReader { proxy in
             List {
                 ForEach(viewModel.list, id: \.id) { media in
                     switch media {
                         case .movie(_), .tv(_):
-                            NavigationLink(value: media) {
-                                MediaCellView(media: media, size: .small)
-                            }
+                            MediaCellView(media: media, size: .small)
+                                .id(media.id)
+                                .onTapGesture {
+                                    navigation.path.append(media)
+                                }
                         default:
                             fatalError()
                     }
                 }
             }
-            .searchable(text: $viewModel.searchText) //TODO: dismiss focus on scroll
+            .searchable(text: $viewModel.searchText)
             .listStyle(.plain)
             .onSubmit(of: .search) {
                 viewModel.fetch()
             }
-            .navigationDestination(for: Media.self) { movie in
-                MediaDetailView(media: movie)
-            }
-            .onAppear {
-                viewModel.fetch()
-            }
-            .frame(minHeight: viewModel.searchText.count > 0 ? 220 : 50)
+            .onChange(of: viewModel.list, perform: { newValue in
+                withAnimation {                    
+                    proxy.scrollTo(viewModel.list.first?.id)
+                }
+            })
             .toolbarBackground(.hidden, for: .navigationBar)
+            .navigationBarTitleDisplayMode(.inline)
         }
-
     }
 }
 
@@ -50,9 +55,13 @@ extension ScannedMediaView {
         @Published var list: [Media]
         @Published var error: String?
         @Published var searchText: String
+        @Published var contentHeight: CGFloat = 0
+        @Published var searching = false
         
         let mediaService: MediaService
         let genreService: GenreService
+        
+        let height = UIScreen.main.bounds.height / 4
                         
         init(list: [Media] = [],
              error: String? = nil,
@@ -67,6 +76,7 @@ extension ScannedMediaView {
             self.searchText = searchText
             
             setupFilterCallbacks()
+            setupContentHeightCallbacks()
         }
         
         func setupFilterCallbacks() {
@@ -81,9 +91,36 @@ extension ScannedMediaView {
                 }
             }
         }
+        
+        func setupContentHeightCallbacks() {
+            Task {
+                for await val in $searchText.values {
+                    if val.count == 0 {
+                        self.contentHeight = 0
+                    } else {
+                        self.contentHeight = list.isEmpty ? height : 0
+                    }
+                }
+            }
+            
+            Task {
+                for await val in $list.values {
+                    if !val.isEmpty {
+                        self.contentHeight = height
+                    }
+                }
+            }
+        }
+        
+        func startExternalSearch(with: String) {
+            searchText = with
+            fetch()
+        }
                 
         func fetch() {
             guard !searchText.isEmpty else {
+                self.list = []
+                self.error = nil
                 return
             }
             Task {
@@ -115,7 +152,6 @@ extension ScannedMediaView {
     static func hostingVC() -> (Self, UIView) {
         let view = ScannedMediaView(viewModel: ScannedMediaView.ViewModel())
         let hostingVC = UIHostingController(rootView: view)
-        hostingVC.view.backgroundColor = .red
         
         return (view, hostingVC.view)
     }

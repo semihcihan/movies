@@ -9,7 +9,8 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        ListView(viewModel: ListView.ViewModel())            
+        ListView(viewModel: ListView.ViewModel())
+            .environmentObject(Navigation())
     }
 }
 

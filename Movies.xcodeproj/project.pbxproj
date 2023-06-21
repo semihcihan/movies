@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		49263D0929F919F5002F864F /* Media.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49263D0829F919F5002F864F /* Media.swift */; };
 		49263D0E29F94929002F864F /* DecodedTaskPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49263D0D29F94929002F864F /* DecodedTaskPublisher.swift */; };
-		49263D1129F964E7002F864F /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49263D1029F964E7002F864F /* AppEnvironment.swift */; };
 		49263D1329F966DA002F864F /* MediaRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49263D1229F966DA002F864F /* MediaRepository.swift */; };
 		4932A8432A20EE30009E792F /* EntityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4932A8422A20EE30009E792F /* EntityTests.swift */; };
 		4932A8452A20F11E009E792F /* Movie.json in Resources */ = {isa = PBXBuildFile; fileRef = 4932A8442A20F11E009E792F /* Movie.json */; };
@@ -24,6 +23,7 @@
 		493B23A92A1B678200DCC843 /* ImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493B23A82A1B678200DCC843 /* ImageService.swift */; };
 		493B23AB2A1B8E9200DCC843 /* DIContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493B23AA2A1B8E9200DCC843 /* DIContainer.swift */; };
 		4994189F2A37AB57007FBC6B /* ScannedMediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4994189E2A37AB57007FBC6B /* ScannedMediaView.swift */; };
+		49BD6CA42A42F82D00B7DB0A /* Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49BD6CA32A42F82D00B7DB0A /* Navigation.swift */; };
 		49D9B79C2A33353200A5C676 /* ScannerViewControllerRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9B79B2A33353200A5C676 /* ScannerViewControllerRepresentable.swift */; };
 		49DF746B29EDBF48001EE4D3 /* MoviesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DF746A29EDBF48001EE4D3 /* MoviesApp.swift */; };
 		49DF746D29EDBF48001EE4D3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49DF746C29EDBF48001EE4D3 /* ContentView.swift */; };
@@ -63,7 +63,6 @@
 /* Begin PBXFileReference section */
 		49263D0829F919F5002F864F /* Media.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Media.swift; sourceTree = "<group>"; };
 		49263D0D29F94929002F864F /* DecodedTaskPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodedTaskPublisher.swift; sourceTree = "<group>"; };
-		49263D1029F964E7002F864F /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
 		49263D1229F966DA002F864F /* MediaRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaRepository.swift; sourceTree = "<group>"; };
 		4932A8422A20EE30009E792F /* EntityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntityTests.swift; sourceTree = "<group>"; };
 		4932A8442A20F11E009E792F /* Movie.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Movie.json; sourceTree = "<group>"; };
@@ -78,6 +77,7 @@
 		493B23A82A1B678200DCC843 /* ImageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageService.swift; sourceTree = "<group>"; };
 		493B23AA2A1B8E9200DCC843 /* DIContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DIContainer.swift; sourceTree = "<group>"; };
 		4994189E2A37AB57007FBC6B /* ScannedMediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannedMediaView.swift; sourceTree = "<group>"; };
+		49BD6CA32A42F82D00B7DB0A /* Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigation.swift; sourceTree = "<group>"; };
 		49D9B79B2A33353200A5C676 /* ScannerViewControllerRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerViewControllerRepresentable.swift; sourceTree = "<group>"; };
 		49DF746729EDBF48001EE4D3 /* Movies.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Movies.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		49DF746A29EDBF48001EE4D3 /* MoviesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoviesApp.swift; sourceTree = "<group>"; };
@@ -134,6 +134,7 @@
 				49F7945729F05D0300CD9AA0 /* NetworkRequest.swift */,
 				49263D0D29F94929002F864F /* DecodedTaskPublisher.swift */,
 				493B23AA2A1B8E9200DCC843 /* DIContainer.swift */,
+				49BD6CA32A42F82D00B7DB0A /* Navigation.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -147,14 +148,6 @@
 				4932A84E2A24F4A4009E792F /* GenreRepository.swift */,
 			);
 			path = Repository;
-			sourceTree = "<group>";
-		};
-		49263D0F29F964C0002F864F /* System */ = {
-			isa = PBXGroup;
-			children = (
-				49263D1029F964E7002F864F /* AppEnvironment.swift */,
-			);
-			path = System;
 			sourceTree = "<group>";
 		};
 		49DF745E29EDBF48001EE4D3 = {
@@ -182,11 +175,9 @@
 			children = (
 				49DF746A29EDBF48001EE4D3 /* MoviesApp.swift */,
 				49DF749729EDC106001EE4D3 /* View */,
-				49DF749B29EDC2FA001EE4D3 /* ViewModel */,
 				49DF749C29EDC304001EE4D3 /* Model */,
 				49DF74A929EF4A8D001EE4D3 /* Service */,
 				49263D0C29F93A84002F864F /* Repository */,
-				49263D0F29F964C0002F864F /* System */,
 				49263D0B29F93A6E002F864F /* Helper */,
 				49DF749429EDBFCD001EE4D3 /* SupportingFiles */,
 			);
@@ -246,13 +237,6 @@
 				4994189E2A37AB57007FBC6B /* ScannedMediaView.swift */,
 			);
 			path = View;
-			sourceTree = "<group>";
-		};
-		49DF749B29EDC2FA001EE4D3 /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		49DF749C29EDC304001EE4D3 /* Model */ = {
@@ -426,7 +410,7 @@
 				49D9B79C2A33353200A5C676 /* ScannerViewControllerRepresentable.swift in Sources */,
 				4932A8512A24F4D9009E792F /* Genre.swift in Sources */,
 				49263D1329F966DA002F864F /* MediaRepository.swift in Sources */,
-				49263D1129F964E7002F864F /* AppEnvironment.swift in Sources */,
+				49BD6CA42A42F82D00B7DB0A /* Navigation.swift in Sources */,
 				49263D0929F919F5002F864F /* Media.swift in Sources */,
 				49DF74A229EDC999001EE4D3 /* ListSlice.swift in Sources */,
 				493B23A72A1B632A00DCC843 /* ImageCacheRepository.swift in Sources */,

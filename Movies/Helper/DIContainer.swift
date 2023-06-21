@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol DIContainerProtocol {
+protocol DIContainerProtocol: ObservableObject {
     func register<Component>(type: Component.Type, component: Any)
     func resolve<Component>(type: Component.Type) -> Component
 }
@@ -33,5 +33,6 @@ extension DIContainer {
         DIContainer.shared.register(type: MediaService.self, component: RealMediaService(movieRepository: RealMediaRepository()))
         DIContainer.shared.register(type: ImageService.self, component: RealImageService())
         DIContainer.shared.register(type: GenreService.self, component: RealGenreService(genreRepository: RealGenreRepository()))
+        DIContainer.shared.register(type: Navigation.self, component: Navigation())
     }
 }

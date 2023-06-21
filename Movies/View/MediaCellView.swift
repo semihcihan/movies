@@ -56,7 +56,7 @@ struct MediaCellView: View {
                     }
                     
                     
-                    ScrollView(.horizontal) { //TODO: prevents selection                     
+                    ScrollView(.horizontal) {                     
                         LazyHStack {
                             if let voteAverage = viewModel.media?.voteAverage {
                                 Image(systemName: "star.fill")

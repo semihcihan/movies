@@ -10,11 +10,11 @@ import Combine
 
 struct ListView: View {    
     @ObservedObject var viewModel: ViewModel
-    
+    @EnvironmentObject var navigation: Navigation
+
     var body: some View {
-        NavigationStack(path: $viewModel.path) {
+        NavigationStack(path: $navigation.path) {
             Group {
-                
                 if viewModel.list.count > 0 || viewModel.selectedMediaIndex != nil || viewModel.selectedRatingIndex != nil {
                     List {
                         Section {
@@ -25,9 +25,12 @@ struct ListView: View {
                                         NavigationLink(value: media) {
                                             MediaCellView(media: media)
                                         }
+                                        .onTapGesture {
+                                            navigation.path.append(media)
+                                        }
                                     default:
                                         MediaCellView(media: media)
-                                }                                
+                                }
                             }
                             
                             if viewModel.searchText.count == 0 && viewModel.canRequestMore {
@@ -73,6 +76,7 @@ struct ListView: View {
                     }
                     .navigationDestination(for: String.self, destination: { _ in
                         ScannerViewControllerRepresentable()
+                            .edgesIgnoringSafeArea([.bottom])
                     })
                 } else {
                     List {
@@ -88,20 +92,22 @@ struct ListView: View {
                 }
             }
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        //TODO: check availability
-                        /**
-                         var scannerAvailable: Bool {
-                         DataScannerViewController.isSupported &&
-                         DataScannerViewController.isAvailable
-                         }
-                         */
-                        viewModel.path.append("")
-                    } label: {
-                        Image(systemName: "camera.fill")
+                if MyDataScannerViewController.isSupported {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            //TODO: check availability
+                            /**
+                             var scannerAvailable: Bool {
+                             DataScannerViewController.isSupported &&
+                             DataScannerViewController.isAvailable
+                             }
+                             */
+                            navigation.path.append("")
+                        } label: {
+                            Image(systemName: "camera.fill")
+                        }
+                        
                     }
-                    
                 }
             }
             .navigationBarTitle("Movie Vision", displayMode: .large)
@@ -118,12 +124,11 @@ extension ListView {
         @Published var list: [Media]
         @Published var searchResults: [Media]
         @Published var error: String? //TODO: error display
-        @Published var path: NavigationPath = NavigationPath()
         @Published var selectedMediaIndex: Int?
         @Published var searchText: String
         @Published var selectedRatingIndex: Int?
         @Published var selectedCategoryIndex: Int?
-        
+                
         let ratings: [Int] = [6, 7, 8, 9]
         let mediaService: MediaService
         let genreService: GenreService

@@ -36,3 +36,11 @@ final class RealMediaService: MediaService {
         }
     }
 }
+
+
+final class MockMediaService: MediaService {
+    func list(page: Int, perPage: Int = 20, mediaType: Media.MediaType?, search: String, rating: Int?) async throws -> ListSlice<Media> {
+        try? await Task.sleep(for: .seconds(0.3))
+        return ListSlice(page: 0, results: [Media.movie(Movie.preview)], totalPages: 1, totalResults: 1)        
+    }
+}
