@@ -14,86 +14,77 @@ struct ListView: View {
 
     var body: some View {
         NavigationStack(path: $navigation.path) {
-            Group {
-                if !viewModel.list.isEmpty || viewModel.selectedMediaIndex != nil || viewModel.selectedRatingIndex != nil {
-                    List {
-                        Section {
-                            ForEach(!viewModel.searchText.isEmpty ? viewModel.searchResults : viewModel.list, id: \.id) { media in
-                                
-                                switch media {
-                                    case .movie(_), .tv(_):
-                                        NavigationLink(value: media) {
-                                            MediaCellView(media: media)
-                                        }
-                                        .onTapGesture {
-                                            navigation.path.append(media)
-                                        }
-                                    default:
+            List {
+                Section {
+                    if !viewModel.loadingFirstPage {
+                        ForEach(viewModel.list, id: \.id) { media in
+                            switch media {
+                                case .movie(_), .tv(_):
+                                    NavigationLink(value: media) {
                                         MediaCellView(media: media)
-                                }
-                            }
-                            
-                            if viewModel.searchText.count == 0 && viewModel.canRequestMore {
-                                HStack {
-                                    Spacer()
-                                    ProgressView()
-                                    Spacer()
-                                }
-                                .id(UUID())
-                                .padding()
-                                .onAppear {
-                                    viewModel.fetch()
-                                }
-                            }
-                        } header: {
-                            if viewModel.searchText.count == 0 {
-                                VStack(spacing: 12) {
-                                    HStack {
-                                        Image(systemName: "star.fill")
-                                            .frame(width: 20)
-                                        CrumbSelection(selectedTitleIndex: $viewModel.selectedRatingIndex, titles: viewModel.ratings.map{ String($0) + "+" } )
-                                        Spacer()
                                     }
-                                    HStack {
-                                        Image(systemName: "play.fill")
-                                            .frame(width: 20)
-                                        CrumbSelection(selectedTitleIndex: $viewModel.selectedMediaIndex, titles: ["Movie", "TV"])
-                                        Spacer()
+                                    .onTapGesture {
+                                        navigation.path.append(media)
                                     }
-                                }
-                                .padding(.bottom, 12)
-                                .padding(.top, -12)
+                                default:
+                                    MediaCellView(media: media)
                             }
                         }
+                        
+                        if viewModel.canRequestMore {
+                            HStack {
+                                Spacer()
+                                ProgressView()
+                                Spacer()
+                            }
+                            .id(UUID())
+                            .padding()
+                            .onAppear {
+                                viewModel.fetch()
+                            }
+                        }
+                    } else {
+                        ForEach(0...5, id: \.self) { _ in
+                            MediaCellView(media: nil)
+                        }
                     }
-                    .refreshable(action: {
-                        viewModel.fetch(refresh: true)
-                    })
-                    .searchable(text: $viewModel.searchText)
-                    .listStyle(.grouped)
-                    .onSubmit(of: .search) {
-                        viewModel.fetch()
-                    }
-                    .navigationDestination(for: Media.self) { movie in
-                        MediaDetailView(media: movie)
-                    }
-                    .navigationDestination(for: String.self, destination: { _ in
-                        ScannerViewControllerRepresentable()
-                            .edgesIgnoringSafeArea([.bottom])
-                    })
-                } else {
-                    List {
-                        MediaCellView(media: nil)
-                        MediaCellView(media: nil)
-                        MediaCellView(media: nil)
-                        MediaCellView(media: nil)
-                        MediaCellView(media: nil)
-                    }
-                    .onAppear {
-                        viewModel.fetch()
+                } header: {
+                    if viewModel.searchText.count == 0 {
+                        VStack(spacing: 12) {
+                            HStack {
+                                Image(systemName: "star.fill")
+                                    .frame(width: 20)
+                                CrumbSelection(selectedTitleIndex: $viewModel.selectedRatingIndex, titles: viewModel.ratings.map{ String($0) + "+" } )
+                                Spacer()
+                            }
+                            HStack {
+                                Image(systemName: "play.fill")
+                                    .frame(width: 20)
+                                CrumbSelection(selectedTitleIndex: $viewModel.selectedMediaIndex, titles: ["Movie", "TV"])
+                                Spacer()
+                            }
+                        }
+                        .padding(.bottom, 12)
+                        .padding(.top, -12)
                     }
                 }
             }
+            .refreshable(action: {
+                viewModel.fetch(forceInitialPage: true)
+            })
+            .searchable(text: $viewModel.searchText)
+            .autocorrectionDisabled()
+            .listStyle(.grouped)
+            .onSubmit(of: .search) {
+                viewModel.fetch(forceInitialPage: true)
+            }
+            .navigationDestination(for: Media.self) { movie in
+                MediaDetailView(media: movie)
+            }
+            .navigationDestination(for: String.self, destination: { _ in
+                ScannerViewControllerRepresentable()
+                    .edgesIgnoringSafeArea([.bottom])
+            })
             .toolbar {
                 if MyDataScannerViewController.isSupported {
                     ToolbarItem(placement: .navigationBarTrailing) {
@@ -102,12 +93,13 @@ struct ListView: View {
                         } label: {
                             Image(systemName: "camera.fill")
                         }
-                        
                     }
                 }
             }
             .navigationBarTitle("Movie Vision", displayMode: .large)
-
+        }
+        .onAppear {
+            viewModel.fetch()
         }
     }
 }
@@ -118,12 +110,12 @@ extension ListView {
     @MainActor
     class ViewModel: ObservableObject {
         @Published var list: [Media]
-        @Published var searchResults: [Media]
         @Published var error: String?
         @Published var selectedMediaIndex: Int?
         @Published var searchText: String
         @Published var selectedRatingIndex: Int?
         @Published var selectedCategoryIndex: Int?
+        @Published var loadingFirstPage: Bool = true
                 
         let ratings: [Int] = [6, 7, 8, 9]
         let mediaService: MediaService
@@ -140,7 +132,6 @@ extension ListView {
         
         init(list: [Media] = [],
              error: String? = nil,
-             searchResults: [Media] = [],
              searchText: String = "",
              mediaService: MediaService = DIContainer.shared.resolve(type: MediaService.self),
              genreService: GenreService = DIContainer.shared.resolve(type: GenreService.self)) {
@@ -149,7 +140,6 @@ extension ListView {
             self.mediaService = mediaService
             self.genreService = genreService
             self.searchText = searchText
-            self.searchResults = searchResults
             
             setupFilterCallbacks()
         }
@@ -171,7 +161,7 @@ extension ListView {
                     
                     self.page = 0
                     self.totalPages = 1
-                    self.fetch()
+                    self.fetch(forceInitialPage: true)
                 }
             }
             
@@ -188,7 +178,7 @@ extension ListView {
                     
                     self.page = 0
                     self.totalPages = 1
-                    self.fetch()
+                    self.fetch(forceInitialPage: true)
                 }
             }
             
@@ -198,7 +188,7 @@ extension ListView {
                 }
                 for await val in self.$searchText.values.dropFirst() {
                     if val.count == 0 {
-                        self.searchResults = []
+                        fetch(forceInitialPage: true)
                     }
                 }
             }
@@ -208,37 +198,48 @@ extension ListView {
             return totalPages > page
         }
         
-        func fetch(refresh: Bool = false) {
+        func fetch(forceInitialPage: Bool = false) {
             Task {
-                if refresh {
+                if forceInitialPage {
                     page = 0
                 }
-                let isSearch = searchText.count > 0
-                guard isSearch || canRequestMore || refresh else {
+                guard canRequestMore else {
                     return
                 }
                 
                 do {
+                    let task = Task {
+                        if page == 0 { //data on screen is old
+                            if !list.isEmpty { //if empty, show redacted without wait
+                                try? await Task.sleep(for: .seconds(0.5))
+                            }
+                            if !Task.isCancelled {
+                                loadingFirstPage = true
+                            }
+                        }
+                    }
+
                     let result = try await mediaService.list(
-                        page: searchText.count > 0 ? 1 : page + 1,
+                        page: page + 1,
                         mediaType: mediaType,
                         search: searchText,
                         rating: selectedRating)
-                    
-                    if isSearch {
-                        self.searchResults = result.results
+                    if result.page == 1 {
+                        list = result.results
                     } else {
-                        self.searchResults = []
-                        if result.page == 1 {
-                            self.list = result.results
-                        } else {
-                            self.list = self.list + result.results
-                        }
-                        self.page = result.page
-                        self.totalPages = result.totalPages
+                        list = list + result.results
                     }
-                    self.error = nil
+                    page = result.page
+                    totalPages = result.totalPages
+                    error = nil
+
+                    task.cancel()
+                    Task {
+                        try? await Task.sleep(for: .seconds(1))
+                        loadingFirstPage = false
+                    }
                 } catch {
+                    loadingFirstPage = false
                     self.error = error.localizedDescription
                 }
             }
