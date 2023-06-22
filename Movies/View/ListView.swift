@@ -15,10 +15,10 @@ struct ListView: View {
     var body: some View {
         NavigationStack(path: $navigation.path) {
             Group {
-                if viewModel.list.count > 0 || viewModel.selectedMediaIndex != nil || viewModel.selectedRatingIndex != nil {
+                if !viewModel.list.isEmpty || viewModel.selectedMediaIndex != nil || viewModel.selectedRatingIndex != nil {
                     List {
                         Section {
-                            ForEach(viewModel.searchText.count > 0 ? viewModel.searchResults : viewModel.list, id: \.id) { media in
+                            ForEach(!viewModel.searchText.isEmpty ? viewModel.searchResults : viewModel.list, id: \.id) { media in
                                 
                                 switch media {
                                     case .movie(_), .tv(_):
@@ -61,13 +61,16 @@ struct ListView: View {
                                         Spacer()
                                     }
                                 }
-                                .padding(.leading, -20)
-                                .padding(.bottom, 6)
+                                .padding(.bottom, 12)
                                 .padding(.top, -12)
                             }
                         }
                     }
+                    .refreshable(action: {
+                        viewModel.fetch(refresh: true)
+                    })
                     .searchable(text: $viewModel.searchText)
+                    .listStyle(.grouped)
                     .onSubmit(of: .search) {
                         viewModel.fetch()
                     }
@@ -95,13 +98,6 @@ struct ListView: View {
                 if MyDataScannerViewController.isSupported {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button {
-                            //TODO: check availability
-                            /**
-                             var scannerAvailable: Bool {
-                             DataScannerViewController.isSupported &&
-                             DataScannerViewController.isAvailable
-                             }
-                             */
                             navigation.path.append("")
                         } label: {
                             Image(systemName: "camera.fill")
@@ -123,7 +119,7 @@ extension ListView {
     class ViewModel: ObservableObject {
         @Published var list: [Media]
         @Published var searchResults: [Media]
-        @Published var error: String? //TODO: error display
+        @Published var error: String?
         @Published var selectedMediaIndex: Int?
         @Published var searchText: String
         @Published var selectedRatingIndex: Int?
@@ -212,10 +208,13 @@ extension ListView {
             return totalPages > page
         }
         
-        func fetch() {
+        func fetch(refresh: Bool = false) {
             Task {
+                if refresh {
+                    page = 0
+                }
                 let isSearch = searchText.count > 0
-                guard isSearch || canRequestMore else {
+                guard isSearch || canRequestMore || refresh else {
                     return
                 }
                 
@@ -326,5 +325,6 @@ struct ListView_Previews: PreviewProvider {
         NavigationStack {
             ListView(viewModel: ListView.ViewModel(mediaService: RealMediaService(movieRepository: RealMediaRepository())))
         }
+        .environmentObject(Navigation())
     }
 }

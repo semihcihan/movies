@@ -146,7 +146,6 @@ class MyDataScannerViewController: UIViewController, DataScannerViewControllerDe
             resultsView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             resultsView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             resultsView.topAnchor.constraint(equalTo: dataScanner.view.bottomAnchor),
-            resultsView.heightAnchor.constraint(equalToConstant: 300),
         ])
         
         dataScannerBottomConstraint = dataScanner.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)

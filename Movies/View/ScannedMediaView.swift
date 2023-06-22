@@ -20,16 +20,22 @@ struct ScannedMediaView: View {
     var body: some View {
         ScrollViewReader { proxy in
             List {
-                ForEach(viewModel.list, id: \.id) { media in
-                    switch media {
-                        case .movie(_), .tv(_):
-                            MediaCellView(media: media, size: .small)
-                                .id(media.id)
-                                .onTapGesture {
-                                    navigation.path.append(media)
-                                }
-                        default:
-                            fatalError()
+                if let error = viewModel.error, !error.isEmpty {
+                    Text(viewModel.error ?? "")
+                        .font(.callout)
+                        .foregroundColor(.secondary)
+                } else {
+                    ForEach(viewModel.list, id: \.id) { media in
+                        switch media {
+                            case .movie(_), .tv(_):
+                                MediaCellView(media: media, size: .small)
+                                    .id(media.id)
+                                    .onTapGesture {
+                                        navigation.path.append(media)
+                                    }
+                            default:
+                                fatalError()
+                        }
                     }
                 }
             }
@@ -39,10 +45,15 @@ struct ScannedMediaView: View {
                 viewModel.fetch()
             }
             .onChange(of: viewModel.list, perform: { newValue in
-                withAnimation {                    
+                withAnimation {
                     proxy.scrollTo(viewModel.list.first?.id)
                 }
             })
+            .safeAreaInset(edge: .bottom, spacing: 0, content: {
+                Color(.clear)
+                    .frame(height: 20)
+            })
+            .frame(height: viewModel.height)
             .toolbarBackground(.hidden, for: .navigationBar)
             .navigationBarTitleDisplayMode(.inline)
         }
@@ -61,7 +72,7 @@ extension ScannedMediaView {
         let mediaService: MediaService
         let genreService: GenreService
         
-        let height = UIScreen.main.bounds.height / 4
+        let height = max(225, UIScreen.main.bounds.height / 4)
                         
         init(list: [Media] = [],
              error: String? = nil,
@@ -85,6 +96,7 @@ extension ScannedMediaView {
                     return
                 }
                 for await val in self.$searchText.values.dropFirst() {
+                    self.error = nil
                     if val.count == 0 {
                         self.list = []
                     }
@@ -95,10 +107,8 @@ extension ScannedMediaView {
         func setupContentHeightCallbacks() {
             Task {
                 for await val in $searchText.values {
-                    if val.count == 0 {
+                    if val.isEmpty {
                         self.contentHeight = 0
-                    } else {
-                        self.contentHeight = list.isEmpty ? height : 0
                     }
                 }
             }
@@ -123,6 +133,7 @@ extension ScannedMediaView {
                 self.error = nil
                 return
             }
+            
             Task {
                 do {
                     let result = try await mediaService.list(
@@ -139,7 +150,11 @@ extension ScannedMediaView {
                                 return false
                         }
                     })
-                    self.error = nil
+                    if result.results.isEmpty {
+                        self.error = "No result for \"\(searchText)\"\nTry to search manually"
+                    } else {
+                        self.error = nil
+                    }
                 } catch {
                     self.error = error.localizedDescription
                 }
@@ -161,12 +176,8 @@ struct ScannedMediaView_Previews: PreviewProvider {
     @State static var isPresented = true
     
     static var previews: some View {
-        Rectangle()
-        .background(.red)
-        .sheet(isPresented: $isPresented, content: {
-            Rectangle().background(.green)
-            ScannedMediaView(viewModel: ScannedMediaView.ViewModel(searchText: "Inter", mediaService: RealMediaService(movieRepository: RealMediaRepository())))
-                .frame(height: 350)
-        })
+        NavigationStack {
+            ScannerViewControllerRepresentable()
+        }
     }
 }

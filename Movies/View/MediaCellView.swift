@@ -58,14 +58,38 @@ struct MediaCellView: View {
                     
                     ScrollView(.horizontal) {                     
                         LazyHStack {
-                            if let voteAverage = viewModel.media?.voteAverage {
-                                Image(systemName: "star.fill")
-                                    .frame(width: 20)
-                                    .foregroundColor(.yellow)
-                                    .shadow(radius: 1)
-                                Text(voteAverage)
-                                    .fontWeight(Font.Weight.bold)
-                                    .foregroundColor(.primary)
+                            HStack(spacing: 12) {
+                                if let voteAverage = viewModel.media?.voteAverage {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "star.fill")
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(width: 16)
+                                            .foregroundColor(.yellow)
+                                            .shadow(color: .black, radius: 0.5)
+                                        Text(voteAverage)
+                                            .fontWeight(Font.Weight.bold)
+                                            .foregroundColor(.primary)
+                                    }
+                                }
+                                Group {
+                                    switch viewModel.media {
+                                        case .movie(_):
+                                            Image(systemName: "popcorn.fill")
+                                                .resizable()
+                                        case .tv(_):
+                                            Image(systemName: "tv.fill")
+                                                .resizable()
+                                        case .person(_):
+                                            Image(systemName: "person.fill")
+                                                .resizable()
+                                        case .none:
+                                            EmptyView()
+                                    }
+                                }
+                                .foregroundColor(.secondary)
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 14)
                             }
                             Divider()
                                 .frame(height: 12)
