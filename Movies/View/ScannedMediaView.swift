@@ -76,7 +76,6 @@ extension ScannedMediaView {
                         
         init(list: [Media] = [],
              error: String? = nil,
-             searchResults: [Media] = [],
              searchText: String = "",
              mediaService: MediaService = DIContainer.shared.resolve(type: MediaService.self),
              genreService: GenreService = DIContainer.shared.resolve(type: GenreService.self)) {

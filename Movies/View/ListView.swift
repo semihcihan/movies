@@ -16,7 +16,9 @@ struct ListView: View {
         NavigationStack(path: $navigation.path) {
             List {
                 Section {
-                    if !viewModel.loadingFirstPage {
+                    if viewModel.error != nil {
+                        EmptyView()
+                    } else if !viewModel.loadingFirstPage {
                         ForEach(viewModel.list, id: \.id) { media in
                             switch media {
                                 case .movie(_), .tv(_):
@@ -69,6 +71,17 @@ struct ListView: View {
                     }
                 }
             }
+            .overlay {
+                if let error = viewModel.error {
+                    Button {
+                        viewModel.fetch()
+                    } label: {
+                        Text("\(error.capitalizedSentence)\nPlease try again.")
+                            .foregroundColor(.secondary)
+                            .padding(20)
+                    }
+                }
+            }
             .refreshable(action: {
                 viewModel.fetch(forceInitialPage: true)
             })
@@ -103,8 +116,6 @@ struct ListView: View {
         }
     }
 }
-
-//TODO: check internet connection
 
 extension ListView {
     @MainActor
@@ -206,6 +217,7 @@ extension ListView {
                 guard canRequestMore else {
                     return
                 }
+                self.error = nil
                 
                 do {
                     let task = Task {
@@ -239,7 +251,6 @@ extension ListView {
                         loadingFirstPage = false
                     }
                 } catch {
-                    loadingFirstPage = false
                     self.error = error.localizedDescription
                 }
             }

@@ -120,7 +120,11 @@ class MyDataScannerViewController: UIViewController, DataScannerViewControllerDe
         do {
             try dataScanner.startScanning()
         } catch {
-            print("---", error) //TODO: handle
+            let alert = UIAlertController(title: "Something went wrong", message: "Please try again.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: "Default action"), style: .default, handler: { [weak self] _ in
+                self?.navigationController?.popViewController(animated: true)
+            }))
+            present(alert, animated: true, completion: nil)
         }
     }
     
