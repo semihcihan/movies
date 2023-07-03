@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		490617692A52C9E2000E35E0 /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 490617682A52C9E2000E35E0 /* InfoView.swift */; };
 		49263D0929F919F5002F864F /* Media.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49263D0829F919F5002F864F /* Media.swift */; };
 		49263D0E29F94929002F864F /* DecodedTaskPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49263D0D29F94929002F864F /* DecodedTaskPublisher.swift */; };
 		49263D1329F966DA002F864F /* MediaRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49263D1229F966DA002F864F /* MediaRepository.swift */; };
@@ -62,6 +63,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		490617682A52C9E2000E35E0 /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
 		49263D0829F919F5002F864F /* Media.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Media.swift; sourceTree = "<group>"; };
 		49263D0D29F94929002F864F /* DecodedTaskPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodedTaskPublisher.swift; sourceTree = "<group>"; };
 		49263D1229F966DA002F864F /* MediaRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaRepository.swift; sourceTree = "<group>"; };
@@ -238,6 +240,7 @@
 				49F7946529F159A800CD9AA0 /* MediaDetailView.swift */,
 				49D9B79B2A33353200A5C676 /* ScannerViewControllerRepresentable.swift */,
 				4994189E2A37AB57007FBC6B /* ScannedMediaView.swift */,
+				490617682A52C9E2000E35E0 /* InfoView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -419,6 +422,7 @@
 				49DF74A229EDC999001EE4D3 /* ListSlice.swift in Sources */,
 				493B23A72A1B632A00DCC843 /* ImageCacheRepository.swift in Sources */,
 				49DF746D29EDBF48001EE4D3 /* ContentView.swift in Sources */,
+				490617692A52C9E2000E35E0 /* InfoView.swift in Sources */,
 				49DF746B29EDBF48001EE4D3 /* MoviesApp.swift in Sources */,
 				493B23AB2A1B8E9200DCC843 /* DIContainer.swift in Sources */,
 				49DF749929EDC130001EE4D3 /* ListView.swift in Sources */,
@@ -593,7 +597,7 @@
 				INFOPLIST_FILE = Movies/SupportingFiles/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Movie Vision";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Your camera is used to scan movies and shows.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Your camera is used to scan movies and series.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -626,7 +630,7 @@
 				INFOPLIST_FILE = Movies/SupportingFiles/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Movie Vision";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Your camera is used to scan movies and shows.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Your camera is used to scan movies and series.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

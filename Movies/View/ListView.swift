@@ -94,20 +94,34 @@ struct ListView: View {
             .navigationDestination(for: Media.self) { movie in
                 MediaDetailView(media: movie)
             }
-            .navigationDestination(for: String.self, destination: { _ in
-                ScannerViewControllerRepresentable()
-                    .edgesIgnoringSafeArea([.bottom])
+            .navigationDestination(for: Navigation.Destination.self, destination: { dest in
+                switch dest {
+                    case .scan:
+                        ScannerViewControllerRepresentable()
+                            .edgesIgnoringSafeArea([.bottom])
+                    case .info:
+                        InfoView()
+                }
             })
             .toolbar {
                 if MyDataScannerViewController.isSupported {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button {
-                            navigation.path.append("")
+                            navigation.path.append(Navigation.Destination.scan)
                         } label: {
                             Image(systemName: "camera.fill")
                         }
                     }
                 }
+                
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        navigation.path.append(Navigation.Destination.info)
+                    } label: {
+                        Image(systemName: "info.square.fill")
+                    }
+                }
+
             }
             .navigationBarTitle("Movie Vision", displayMode: .large)
         }

@@ -10,4 +10,9 @@ import SwiftUI
 
 class Navigation: ObservableObject {
     @Published var path: NavigationPath = NavigationPath()
+    
+    enum Destination: String {
+        case scan
+        case info
+    }
 }

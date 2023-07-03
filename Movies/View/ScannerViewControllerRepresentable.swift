@@ -167,7 +167,7 @@ class MyDataScannerViewController: UIViewController, DataScannerViewControllerDe
             return
         }
         
-        let alert = UIAlertController(title: "Camera Access", message: "Camera access is required to scan movie & tv show names.", preferredStyle: .alert)
+        let alert = UIAlertController(title: "Camera Access", message: "Camera access is required to scan movie & tv series names.", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: NSLocalizedString("Go to settings", comment: "Default action"), style: .default, handler: { _ in
             guard let url = URL(string: UIApplication.openSettingsURLString),
                   UIApplication.shared.canOpenURL(url) else {
