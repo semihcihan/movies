@@ -30,7 +30,9 @@ final class RealMediaService: MediaService {
         if search.count > 0 {
             return try await movieRepository.searchList(page: 1, perPage: perPage, keyword: search)
         } else if let rating = rating {
-            return try await movieRepository.discoverList(page: page, perPage: perPage, rating: rating, mediaType: mediaType)
+            var result = try await movieRepository.discoverList(page: page, perPage: perPage, rating: rating, mediaType: mediaType)
+            result.results.sort { $0.popularity > $1.popularity }
+            return result
         } else {
             return try await movieRepository.trendingList(page: page, perPage: perPage, mediaType: mediaType)
         }

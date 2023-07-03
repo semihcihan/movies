@@ -142,7 +142,7 @@ extension ListView {
         @Published var selectedCategoryIndex: Int?
         @Published var loadingFirstPage: Bool = true
                 
-        let ratings: [Int] = [6, 7, 8, 9]
+        let ratings: [Int] = [5, 6, 7, 8]
         let mediaService: MediaService
         let genreService: GenreService
 

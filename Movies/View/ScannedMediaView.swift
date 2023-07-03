@@ -39,7 +39,7 @@ struct ScannedMediaView: View {
                     }
                 }
             }
-            .searchable(text: $viewModel.searchText)
+            .searchable(text: $viewModel.searchText, prompt: "Tap on a text to scan or type")            
             .listStyle(.plain)
             .onSubmit(of: .search) {
                 viewModel.fetch()

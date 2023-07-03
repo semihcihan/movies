@@ -41,7 +41,8 @@ struct RealMediaRepository: MediaRepository {
             URLQueryItem(name: "per_page", value: String(perPage)),
             URLQueryItem(name: "api_key", value: auth),
             URLQueryItem(name: "vote_average.gte", value: String(rating)),
-            URLQueryItem(name: "vote_count.gte", value: String(100))
+            URLQueryItem(name: "vote_count.gte", value: String(100)),
+            URLQueryItem(name: "sort_by", value: "popularity.desc")
         ]
         
         if let mediaType = mediaType {
@@ -71,7 +72,7 @@ struct RealMediaRepository: MediaRepository {
                     try decoder.decode(ListSlice<Media>.self, from: d)
                 })
 
-            return ListSlice(page: response[0].page, results: (response[0].results + response[1].results).shuffled(), totalPages: min(response[0].totalPages, response[1].totalPages), totalResults: min(response[0].totalResults, response[1].totalResults))
+            return ListSlice(page: response[0].page, results: response[0].results + response[1].results, totalPages: min(response[0].totalPages, response[1].totalPages), totalResults: min(response[0].totalResults, response[1].totalResults))
         }
         
     }

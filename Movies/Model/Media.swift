@@ -62,6 +62,17 @@ enum Media {
         }
     }
     
+    var popularity: Double {
+        switch self {
+            case .movie(let movie):
+                return movie.popularity
+            case .tv(let tv):
+                return tv.popularity
+            case .person(let person):
+                return person.popularity
+        }
+    }
+    
     enum MediaType: String, Decodable {
         case movie
         case tv

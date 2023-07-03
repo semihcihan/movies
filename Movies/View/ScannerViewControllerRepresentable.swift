@@ -120,6 +120,10 @@ class MyDataScannerViewController: UIViewController, DataScannerViewControllerDe
         do {
             try dataScanner.startScanning()
         } catch {
+            #if targetEnvironment(simulator)
+            print(error)
+            return
+            #endif
             let alert = UIAlertController(title: "Something went wrong", message: "Please try again.", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: "Default action"), style: .default, handler: { [weak self] _ in
                 self?.navigationController?.popViewController(animated: true)
