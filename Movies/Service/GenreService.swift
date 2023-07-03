@@ -55,8 +55,6 @@ actor RealGenreService: GenreService {
     }
 }
 
-#if DEBUG
-
 struct PreviewGenreService: GenreService {
     func genres(mediaType: Media.MediaType?) async throws -> [Genre] {
         return [
@@ -72,5 +70,3 @@ struct PreviewGenreService: GenreService {
         return []
     }
 }
-
-#endif
