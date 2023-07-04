@@ -1,0 +1,8 @@
+app_identifier("com.semihcihan.movievision") # The bundle identifier of your app
+apple_id("umitsemihcihan@gmail.com") # Your Apple Developer Portal username
+
+itc_team_id("117714313") # App Store Connect Team ID
+team_id("L2EEJBNAG9") # Developer Portal Team ID
+
+# For more information about the Appfile, see:
+#     https://docs.fastlane.tools/advanced/#appfile

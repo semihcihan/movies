@@ -21,13 +21,15 @@ final class MoviesUITests: XCTestCase {
     override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
-
-    func testExample() throws {
-        // UI tests must launch the application that they test.
+    
+    override class func setUp() {
         let app = XCUIApplication()
+        setupSnapshot(app)
         app.launch()
+    }
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+    func testScreenshotHome() throws {
+        snapshot("Home")        
     }
 
     func testLaunchPerformance() throws {
