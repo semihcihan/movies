@@ -31,6 +31,16 @@ final class MoviesUITests: XCTestCase {
     func testScreenshotHome() throws {
         snapshot("Home")        
     }
+    
+    func testScreenshotFilter() throws {
+        
+        let app = XCUIApplication()
+        let collectionViewsQuery = app.collectionViews
+        collectionViewsQuery/*@START_MENU_TOKEN@*/.buttons["7+"]/*[[".cells.buttons[\"7+\"]",".buttons[\"7+\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
+        collectionViewsQuery.buttons["Movie"].tap()
+        
+        snapshot("Filter")
+    }
 
     func testLaunchPerformance() throws {
         if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
