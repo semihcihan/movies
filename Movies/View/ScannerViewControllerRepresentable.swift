@@ -29,9 +29,9 @@ struct ScannerViewControllerRepresentable: UIViewControllerRepresentable {
                 isHighlightingEnabled: true),
             mediaService: mediaService,
             genreService: genreService
-        )
+        )        
         return controller
-    }        
+    }
         
     func updateUIViewController(_ uiViewController: MyDataScannerViewController, context: Context) { }
 }
@@ -58,7 +58,6 @@ class MyDataScannerViewController: UIViewController, DataScannerViewControllerDe
     private var hostingController: UIHostingController<ScannedMediaView>?
     private let dataScanner: DataScannerViewController!
     private var task: Task<(), Error>?
-    var dataScannerBottomConstraint: NSLayoutConstraint?
         
     init(dataScanner: DataScannerViewController, mediaService: MediaService, genreService: GenreService) {
         self.dataScanner = dataScanner
@@ -91,12 +90,14 @@ class MyDataScannerViewController: UIViewController, DataScannerViewControllerDe
         super.viewDidAppear(animated)
         
         startScanning()
+        setupKeyboardNotifications()
         navigationController?.navigationBar.prefersLargeTitles = false
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
+        NotificationCenter.default.removeObserver(self)
         dataScanner.stopScanning()
     }
     
@@ -147,19 +148,27 @@ class MyDataScannerViewController: UIViewController, DataScannerViewControllerDe
         dataScanner.view.translatesAutoresizingMaskIntoConstraints = false
         resultsView.translatesAutoresizingMaskIntoConstraints = false
         
+        let resultsHeight = resultsView.heightAnchor.constraint(equalToConstant: 0)
+        
         NSLayoutConstraint.activate([
             dataScanner.view.topAnchor.constraint(equalTo: view.topAnchor),
             dataScanner.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             dataScanner.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            dataScanner.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             resultsView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             resultsView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            resultsView.topAnchor.constraint(equalTo: dataScanner.view.bottomAnchor),
+            resultsView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            resultsHeight
         ])
         
-        dataScannerBottomConstraint = dataScanner.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        dataScannerBottomConstraint?.isActive = true
-        
-        setupScannedMediaHeight()
+        Task {
+            for await height in scannedMediaView.viewModel.$contentHeight.values {
+                resultsHeight.constant = height
+                UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut) {
+                    self.view.layoutIfNeeded()
+                }
+            }
+        }
     }
         
     func dataScanner(_ dataScanner: DataScannerViewController, didTapOn item: RecognizedItem) {
@@ -185,24 +194,26 @@ class MyDataScannerViewController: UIViewController, DataScannerViewControllerDe
         present(alert, animated: true, completion: nil)
     }
     
+    func setupKeyboardNotifications() {
+        let notificationCenter = NotificationCenter.default
+        notificationCenter.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+    }
+    
+    @objc func keyboardWillHide() {
+        startScanning()
+    }
+    
+    @objc func keyboardWillShow() {
+        dataScanner.stopScanning()        
+    }
+    
 #if targetEnvironment(simulator)
     func didTapOnSimulator(_ dataScanner: DataScannerViewController) {
         self.scannedMediaView.viewModel.startExternalSearch(with: "Inter")
     }
 #endif
-    
-    private let identifier = UISheetPresentationController.Detent.Identifier("sheet")
-    func setupScannedMediaHeight() {
-        Task {
-            for await height in scannedMediaView.viewModel.$contentHeight.values {
-                self.dataScannerBottomConstraint?.constant = -height
-                UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut) {
-                    self.view.layoutIfNeeded()
-                }
-            }
-        }
-    }
-    
+        
     func fetchMediaFor(_ item: RecognizedItem) {
         switch item {
             case .text(let text):

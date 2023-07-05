@@ -13,10 +13,6 @@ struct ScannedMediaView: View {
     @ObservedObject var viewModel: ViewModel
     @EnvironmentObject var navigation: Navigation
     
-    var contentHeight: Bool {
-        return !viewModel.searchText.isEmpty
-    }
-
     var body: some View {
         ScrollViewReader { proxy in
             List {
@@ -39,22 +35,16 @@ struct ScannedMediaView: View {
                     }
                 }
             }
-            .searchable(text: $viewModel.searchText, prompt: "Tap on a text to scan or type")            
+            .background(Color(uiColor: UIColor.systemBackground))
             .listStyle(.plain)
+            .searchable(text: $viewModel.searchText, prompt: "Tap on a text to scan or type")
             .onSubmit(of: .search) {
                 viewModel.fetch()
             }
             .onChange(of: viewModel.list, perform: { newValue in
-                withAnimation {
-                    proxy.scrollTo(viewModel.list.first?.id)
-                }
+                proxy.scrollTo(viewModel.list.first?.id)
             })
-            .safeAreaInset(edge: .bottom, spacing: 0, content: {
-                Color(.clear)
-                    .frame(height: 20)
-            })
-            .frame(height: viewModel.height)
-            .toolbarBackground(.hidden, for: .navigationBar)
+            .frame(height: viewModel.contentHeight)
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -71,9 +61,8 @@ extension ScannedMediaView {
         
         let mediaService: MediaService
         let genreService: GenreService
+        private static let height = max(300, UIScreen.main.bounds.height / 4)
         
-        let height = max(225, UIScreen.main.bounds.height / 4)
-                        
         init(list: [Media] = [],
              error: String? = nil,
              searchText: String = "",
@@ -115,7 +104,7 @@ extension ScannedMediaView {
             Task {
                 for await val in $list.values {
                     if !val.isEmpty {
-                        self.contentHeight = height
+                        self.contentHeight = Self.height
                     }
                 }
             }
