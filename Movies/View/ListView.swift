@@ -321,10 +321,11 @@ struct CrumbSelection: View {
                     } label: {
                         if let titles = titles {
                             Text(titles[index])
+                                .foregroundColor(selectedTitleIndex == index ? .white : .accentColor)
                                 .padding(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
                                 .background {
                                     RoundedRectangle(cornerRadius: 20)
-                                        .fill(.tertiary.opacity(selectedTitleIndex == index ? 1 : 0))
+                                        .fill(.primary.opacity(selectedTitleIndex == index ? 1 : 0))
                                 }
                                 .overlay {
                                     RoundedRectangle(cornerRadius: 20)

@@ -17,6 +17,7 @@ struct MoviesApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
         }
     }
 }

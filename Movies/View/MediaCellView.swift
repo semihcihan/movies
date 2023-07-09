@@ -9,12 +9,10 @@ import SwiftUI
 import Combine
 
 struct MediaCellView: View {
+    @Environment(\.dynamicTypeSize) var typeSize
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
     @StateObject var viewModel: ViewModel
-    
-    enum Size {
-        case `default`
-        case small
-    }
     
     init(media: Media?,
          size: Size = .default,
@@ -26,11 +24,51 @@ struct MediaCellView: View {
         }())
         
     }
+    
+    enum Size {
+        case `default`
+        case small
+    }
+    
+    var sizeMultiplier: Double {
+        return typeSize > DynamicTypeSize.large || (horizontalSizeClass == .regular && verticalSizeClass == .regular) ? 1.2 : 1
+    }
+    
+    var imageViewSize: CGSize {
+        switch viewModel.size {
+            case .default:
+                return CGSize(width: 120 * sizeMultiplier, height: 150 * sizeMultiplier)
+            case .small:
+                return CGSize(width: 40 * sizeMultiplier, height: 50 * sizeMultiplier)
+        }
+    }
+    
+    var genreViewHeight: Double {
+        switch viewModel.size {
+            case .default:
+                return 40 * sizeMultiplier
+            case .small:
+                return 24 * sizeMultiplier
+        }
+    }
+    
+    var mediaTypeImageName: String {
+        switch viewModel.media {
+            case .movie(_):
+                return "popcorn.fill"
+            case .tv(_):
+                return "tv.fill"
+            case .person(_):
+                return "person.fill"
+            case .none:
+                return "popcorn.fill"
+        }
+    }
 
     var body: some View {
             HStack {
                 Rectangle()
-                    .frame(width: viewModel.size == .default ? 120 : 40, height: viewModel.size == .default ? 150 : 50)
+                    .frame(width: imageViewSize.width, height: imageViewSize.height)
                     .opacity(0)
                     .aspectRatio(1, contentMode: .fit)
                     .overlay(
@@ -42,12 +80,12 @@ struct MediaCellView: View {
                         .scaledToFill() : nil
                     )
                     .cornerRadius(8)
-                    .clipShape(Rectangle())
                 
                 VStack(alignment: .leading, spacing: 8) {
-                    VStack (alignment: .leading) {
+                    VStack (alignment: .leading, spacing: 8) {
                         Text(viewModel.media?.displayedName ?? "")
-                            .font(.headline)
+                            .font(.title2)
+                            .fontWeight(.semibold)
                         if viewModel.size == .default {
                             Text(viewModel.media?.overview ?? "")
                                 .font(.subheadline)
@@ -55,41 +93,22 @@ struct MediaCellView: View {
                         }
                     }
                     
-                    
                     ScrollView(.horizontal) {                     
                         LazyHStack {
                             HStack(spacing: 12) {
                                 if let voteAverage = viewModel.media?.voteAverage {
                                     HStack(spacing: 4) {
-                                        Image(systemName: "star.fill")
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fit)
-                                            .frame(width: 16)
+                                        Text(Image(systemName: "star.fill"))
                                             .foregroundColor(.yellow)
                                             .shadow(color: .black, radius: 0.5)
+                                            .font(.footnote)
                                         Text(voteAverage)
                                             .fontWeight(Font.Weight.bold)
                                             .foregroundColor(.primary)
                                     }
                                 }
-                                Group {
-                                    switch viewModel.media {
-                                        case .movie(_):
-                                            Image(systemName: "popcorn.fill")
-                                                .resizable()
-                                        case .tv(_):
-                                            Image(systemName: "tv.fill")
-                                                .resizable()
-                                        case .person(_):
-                                            Image(systemName: "person.fill")
-                                                .resizable()
-                                        case .none:
-                                            EmptyView()
-                                    }
-                                }
-                                .foregroundColor(.secondary)
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 14)
+                                Text(Image(systemName: mediaTypeImageName))
+                                    .foregroundColor(.secondary)
                             }
                             Divider()
                                 .frame(height: 12)
@@ -105,12 +124,11 @@ struct MediaCellView: View {
                     }
                     .offset(.init(width: 0, height: viewModel.size == .default ? 12 : 0))
                     .scrollIndicators(.hidden)
-                    .frame(height: viewModel.size == .default ? 40 : 24)
+                    .frame(height: genreViewHeight)
                 }
-                .frame(height: viewModel.size == .default ? 150 : 50)
+                .frame(height: imageViewSize.height)
                 .padding(.leading)
-                .padding(.top, viewModel.size == .default ? 12 : 2)
-                .padding(.bottom, viewModel.size == .default ? 12 : 2)
+                .padding(.vertical, viewModel.size == .default ? 12 : 2)
             }
             .redacted(reason: viewModel.redacted ? .placeholder : [])
             .task {
@@ -229,6 +247,10 @@ struct MovieCellView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             MediaCellView(media: Media.movie(Movie.preview), genreService: PreviewGenreService())
+                .previewLayout(.fixed(width: 500, height: 200))
+            Rectangle()
+                .frame(height: 20)
+            MediaCellView(media: Media.movie(Movie.previewShortOverview), genreService: PreviewGenreService())
                 .previewLayout(.fixed(width: 500, height: 200))
             Rectangle()
                 .frame(height: 20)

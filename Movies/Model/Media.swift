@@ -189,6 +189,24 @@ extension Movie {
         originalTitle: "Tom",
         releaseDate: "2015-03-25"
     )
+    
+    static let previewShortOverview: Movie = Movie(
+        adult: false,
+        id: 389531,
+        popularity: 0.6,
+        backdropPath: "/jetHCwCGqNt3e7jYVUwtjgcCyDn.jpg",
+        genreIds: [1, 2, 3, 4, 5],
+        originalLanguage: "en",
+        overview: "Tom Ballard lives here.",
+        posterPath: "/ahofH2q9gBjgGA5MRTl8c4AY05A.jpg",
+        video: false,
+        voteAverage: 10.0,
+        voteCount: 1,
+        title: "Tom",
+        originalTitle: "Tom",
+        releaseDate: "2015-03-25"
+    )
+
 }
 
 extension TV {
