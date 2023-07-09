@@ -118,7 +118,8 @@ struct ListView: View {
                     Button {
                         navigation.path.append(Navigation.Destination.info)
                     } label: {
-                        Image(systemName: "info.square.fill")
+                        Text(Image(systemName: "info.square"))
+                            .font(.footnote)
                     }
                 }
 
@@ -276,20 +277,18 @@ extension ListView {
 
 struct CrumbSelection: View {
     @Binding private var selectedTitleIndex: Int?
-    private var transition: AnyTransition
+    private var transition: AnyTransition = .scale.combined(with: .opacity)
     private var titles: [String]?
     private var labels: [Label<Text, Image>]?
     
-    init(selectedTitleIndex: Binding<Int?>, titles: [String], transition: AnyTransition = .scale.combined(with: .opacity)) {
+    init(selectedTitleIndex: Binding<Int?>, titles: [String]) {
         self._selectedTitleIndex = selectedTitleIndex
         self.titles = titles
-        self.transition = transition
     }
     
-    init(selectedTitleIndex: Binding<Int?>, labels: [Label<Text, Image>], transition: AnyTransition = .scale.combined(with: .opacity)) {
+    init(selectedTitleIndex: Binding<Int?>, labels: [Label<Text, Image>]) {
         self._selectedTitleIndex = selectedTitleIndex
         self.labels = labels
-        self.transition = transition
     }
     
     var body: some View {
@@ -350,7 +349,7 @@ struct CrumbSelection: View {
 struct ListView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            ListView(viewModel: ListView.ViewModel(mediaService: RealMediaService(movieRepository: RealMediaRepository())))
+            ListView(viewModel: ListView.ViewModel(mediaService: MockMediaService()))
         }
         .environmentObject(Navigation())
     }
