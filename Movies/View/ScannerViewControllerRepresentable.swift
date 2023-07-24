@@ -24,7 +24,7 @@ struct ScannerViewControllerRepresentable: UIViewControllerRepresentable {
             dataScanner: DataScannerViewController(
                 recognizedDataTypes: [.text()],
                 qualityLevel: .accurate,
-                recognizesMultipleItems: true,
+                recognizesMultipleItems: false,
                 isHighFrameRateTrackingEnabled: false,
                 isHighlightingEnabled: true),
             mediaService: mediaService,
@@ -77,6 +77,7 @@ class MyDataScannerViewController: UIViewController, DataScannerViewControllerDe
         super.viewDidLoad()
 
         setupChildren()
+        dataScanner.regionOfInterest = CGRect(x: 20, y: 50, width: view.bounds.width - 40, height: view.bounds.width - 200)
         
 #if targetEnvironment(simulator)
         Task {
@@ -90,7 +91,6 @@ class MyDataScannerViewController: UIViewController, DataScannerViewControllerDe
         super.viewDidAppear(animated)
         
         startScanning()
-        setupKeyboardNotifications()
         navigationController?.navigationBar.prefersLargeTitles = false
     }
     
@@ -154,7 +154,7 @@ class MyDataScannerViewController: UIViewController, DataScannerViewControllerDe
             dataScanner.view.topAnchor.constraint(equalTo: view.topAnchor),
             dataScanner.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             dataScanner.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            dataScanner.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            dataScanner.view.bottomAnchor.constraint(equalTo: resultsView.topAnchor),
             resultsView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             resultsView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             resultsView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -193,21 +193,7 @@ class MyDataScannerViewController: UIViewController, DataScannerViewControllerDe
         }))
         present(alert, animated: true, completion: nil)
     }
-    
-    func setupKeyboardNotifications() {
-        let notificationCenter = NotificationCenter.default
-        notificationCenter.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
-        notificationCenter.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-    }
-    
-    @objc func keyboardWillHide() {
-        startScanning()
-    }
-    
-    @objc func keyboardWillShow() {
-        dataScanner.stopScanning()        
-    }
-    
+        
 #if targetEnvironment(simulator)
     func didTapOnSimulator(_ dataScanner: DataScannerViewController) {
         self.scannedMediaView.viewModel.startExternalSearch(with: "Inter")

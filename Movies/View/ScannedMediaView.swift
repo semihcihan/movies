@@ -37,7 +37,7 @@ struct ScannedMediaView: View {
             }
             .background(Color(uiColor: UIColor.systemBackground))
             .listStyle(.plain)
-            .searchable(text: $viewModel.searchText, prompt: "Tap on a text to scan or type")
+            .searchable(text: $viewModel.searchText, prompt: "Tap on a text to scan or type here")
             .onSubmit(of: .search) {
                 viewModel.fetch()
             }
