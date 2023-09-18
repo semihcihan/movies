@@ -11,6 +11,41 @@ import Combine
 struct ListView: View {    
     @ObservedObject var viewModel: ViewModel
     @EnvironmentObject var navigation: Navigation
+    
+    @ViewBuilder
+    var headerView: some View {
+        if viewModel.searchText.count == 0 {
+            VStack(spacing: 12) {
+                HStack {
+                    Image(systemName: "star.fill")
+                        .frame(width: 20)
+                    CrumbSelection(selectedTitleIndex: $viewModel.selectedRatingIndex, titles: viewModel.ratings.map { String($0) + "+" } )
+                    Spacer()
+                }
+                HStack {
+                    Image(systemName: "play.fill")
+                        .frame(width: 20)
+                    CrumbSelection(selectedTitleIndex: $viewModel.selectedMediaIndex, titles: ["Movie", "TV"])
+                    Spacer()
+                }
+            }
+            .padding(.bottom, 12)
+            .padding(.top, -12)
+        }
+    }
+    
+    @ViewBuilder
+    var errorView: some View {
+        if let error = viewModel.error {
+            Button {
+                viewModel.fetch()
+            } label: {
+                Text("\(error.capitalizedSentence)\nPlease try again.")
+                    .foregroundColor(.secondary)
+                    .padding(20)
+            }
+        }
+    }
 
     var body: some View {
         NavigationStack(path: $navigation.path) {
@@ -51,36 +86,11 @@ struct ListView: View {
                         }
                     }
                 } header: {
-                    if viewModel.searchText.count == 0 {
-                        VStack(spacing: 12) {
-                            HStack {
-                                Image(systemName: "star.fill")
-                                    .frame(width: 20)
-                                CrumbSelection(selectedTitleIndex: $viewModel.selectedRatingIndex, titles: viewModel.ratings.map{ String($0) + "+" } )
-                                Spacer()
-                            }
-                            HStack {
-                                Image(systemName: "play.fill")
-                                    .frame(width: 20)
-                                CrumbSelection(selectedTitleIndex: $viewModel.selectedMediaIndex, titles: ["Movie", "TV"])
-                                Spacer()
-                            }
-                        }
-                        .padding(.bottom, 12)
-                        .padding(.top, -12)
-                    }
+                    headerView
                 }
             }
             .overlay {
-                if let error = viewModel.error {
-                    Button {
-                        viewModel.fetch()
-                    } label: {
-                        Text("\(error.capitalizedSentence)\nPlease try again.")
-                            .foregroundColor(.secondary)
-                            .padding(20)
-                    }
-                }
+                errorView
             }
             .refreshable(action: {
                 viewModel.fetch(forceInitialPage: true)
@@ -151,10 +161,6 @@ extension ListView {
         var mediaType: Media.MediaType?
         var page: Int = 0
         var totalPages: Int = 1
-
-        var selectedMediaCancellable: AnyCancellable?
-        var searchCancellable: AnyCancellable?
-        var selectedRatingCancellable: AnyCancellable?
         
         init(list: [Media] = [],
              error: String? = nil,
@@ -272,8 +278,6 @@ extension ListView {
         }
     }
 }
-
-
 
 struct CrumbSelection: View {
     @Binding private var selectedTitleIndex: Int?

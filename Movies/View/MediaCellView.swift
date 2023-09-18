@@ -19,10 +19,7 @@ struct MediaCellView: View {
          imageService: ImageService = DIContainer.shared.resolve(type: ImageService.self),
          genreService: GenreService = DIContainer.shared.resolve(type: GenreService.self)
     ) {
-        _viewModel = StateObject(wrappedValue: {
-            return ViewModel(media: media, size: size, imageService: imageService, genreService: genreService)
-        }())
-        
+        _viewModel = StateObject(wrappedValue: ViewModel(media: media, size: size, imageService: imageService, genreService: genreService))
     }
     
     enum Size {
@@ -30,11 +27,11 @@ struct MediaCellView: View {
         case small
     }
     
-    var sizeMultiplier: Double {
+    private var sizeMultiplier: Double {
         return typeSize > DynamicTypeSize.large || (horizontalSizeClass == .regular && verticalSizeClass == .regular) ? 1.2 : 1
     }
     
-    var imageViewSize: CGSize {
+    private var imageViewSize: CGSize {
         switch viewModel.size {
             case .default:
                 return CGSize(width: 120 * sizeMultiplier, height: 150 * sizeMultiplier)
@@ -43,7 +40,7 @@ struct MediaCellView: View {
         }
     }
     
-    var genreViewHeight: Double {
+    private var genreViewHeight: Double {
         switch viewModel.size {
             case .default:
                 return 40 * sizeMultiplier
@@ -52,7 +49,7 @@ struct MediaCellView: View {
         }
     }
     
-    var mediaTypeImageName: String {
+    private var mediaTypeImageName: String {
         switch viewModel.media {
             case .movie(_):
                 return "popcorn.fill"
@@ -64,22 +61,27 @@ struct MediaCellView: View {
                 return "popcorn.fill"
         }
     }
+    
+    @ViewBuilder
+    var image: some View {
+        Rectangle()
+            .frame(width: imageViewSize.width, height: imageViewSize.height)
+            .opacity(0)
+            .aspectRatio(1, contentMode: .fit)
+            .overlay(
+                LinearGradient(colors: [Color("ImagePlaceholder"), Color("ImagePlaceholder").opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing)
+            )
+            .overlay(viewModel.image != nil ?
+                     Image(uiImage: viewModel.image!)
+                .resizable()
+                .scaledToFill() : nil
+            )
+            .cornerRadius(8)
+    }
 
     var body: some View {
             HStack {
-                Rectangle()
-                    .frame(width: imageViewSize.width, height: imageViewSize.height)
-                    .opacity(0)
-                    .aspectRatio(1, contentMode: .fit)
-                    .overlay(
-                        LinearGradient(colors: [Color("ImagePlaceholder"), Color("ImagePlaceholder").opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing)
-                    )
-                    .overlay(viewModel.image != nil ?
-                             Image(uiImage: viewModel.image!)
-                        .resizable()
-                        .scaledToFill() : nil
-                    )
-                    .cornerRadius(8)
+                image
                 
                 VStack(alignment: .leading, spacing: 8) {
                     VStack (alignment: .leading, spacing: 8) {
@@ -112,6 +114,7 @@ struct MediaCellView: View {
                             }
                             Divider()
                                 .frame(height: 12)
+                                .opacity(viewModel.genres.count > 0 ? 1 : 0)
                             ForEach(viewModel.genres) { genre in
                                 Text(genre.name.uppercased())
                                     .font(.footnote)

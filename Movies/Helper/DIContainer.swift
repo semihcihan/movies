@@ -33,6 +33,5 @@ extension DIContainer {
         DIContainer.shared.register(type: MediaService.self, component: RealMediaService(movieRepository: RealMediaRepository()))
         DIContainer.shared.register(type: ImageService.self, component: RealImageService())
         DIContainer.shared.register(type: GenreService.self, component: RealGenreService(genreRepository: RealGenreRepository()))
-        DIContainer.shared.register(type: Navigation.self, component: Navigation())
     }
 }

@@ -64,7 +64,6 @@ struct MediaDetailView: View {
                 }
                 .offset(.init(width: 20, height: 4))
                 .scrollIndicators(.hidden)
-
                 
                 VStack(spacing: 12) {
                     Text(viewModel.media?.displayedName ?? "")

@@ -136,11 +136,7 @@ class MyDataScannerViewController: UIViewController, DataScannerViewControllerDe
     func setupChildren() {
         dataScanner.delegate = self
         addChild(dataScanner)
-        view.addSubview(dataScanner.view)
-        #if targetEnvironment(simulator)
-        dataScanner.view.backgroundColor = .red
-        #endif
-        
+        view.addSubview(dataScanner.view)        
         addChild(hostingController!)
         let resultsView = hostingController!.view!
         view.addSubview(resultsView)
@@ -196,7 +192,7 @@ class MyDataScannerViewController: UIViewController, DataScannerViewControllerDe
         
 #if targetEnvironment(simulator)
     func didTapOnSimulator(_ dataScanner: DataScannerViewController) {
-        self.scannedMediaView.viewModel.startExternalSearch(with: "Inter")
+        self.scannedMediaView.viewModel.startExternalSearch(with: "Try this on a real device")
     }
 #endif
         
