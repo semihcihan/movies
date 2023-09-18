@@ -1,0 +1,12 @@
+//
+//  Configuration.xcconfig
+//  Movies
+//
+//  Created by Semih Cihan on 19.04.2023.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+BASE_URL = api.themoviedb.org/3/
+AUTHORIZATION = c9856d0cb57c3f14bf75bdc6c063b8f3
