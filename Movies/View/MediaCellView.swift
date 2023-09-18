@@ -13,7 +13,7 @@ struct MediaCellView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @StateObject var viewModel: ViewModel
-    
+
     init(media: Media?,
          size: Size = .default,
          imageService: ImageService = DIContainer.shared.resolve(type: ImageService.self),
@@ -21,16 +21,16 @@ struct MediaCellView: View {
     ) {
         _viewModel = StateObject(wrappedValue: ViewModel(media: media, size: size, imageService: imageService, genreService: genreService))
     }
-    
+
     enum Size {
         case `default`
         case small
     }
-    
+
     private var sizeMultiplier: Double {
         return typeSize > DynamicTypeSize.large || (horizontalSizeClass == .regular && verticalSizeClass == .regular) ? 1.2 : 1
     }
-    
+
     private var imageViewSize: CGSize {
         switch viewModel.size {
             case .default:
@@ -39,7 +39,7 @@ struct MediaCellView: View {
                 return CGSize(width: 40 * sizeMultiplier, height: 50 * sizeMultiplier)
         }
     }
-    
+
     private var genreViewHeight: Double {
         switch viewModel.size {
             case .default:
@@ -48,20 +48,20 @@ struct MediaCellView: View {
                 return 24 * sizeMultiplier
         }
     }
-    
+
     private var mediaTypeImageName: String {
         switch viewModel.media {
-            case .movie(_):
+            case .movie:
                 return "popcorn.fill"
-            case .tv(_):
+            case .tv:
                 return "tv.fill"
-            case .person(_):
+            case .person:
                 return "person.fill"
             case .none:
                 return "popcorn.fill"
         }
     }
-    
+
     @ViewBuilder
     var image: some View {
         Rectangle()
@@ -69,7 +69,14 @@ struct MediaCellView: View {
             .opacity(0)
             .aspectRatio(1, contentMode: .fit)
             .overlay(
-                LinearGradient(colors: [Color("ImagePlaceholder"), Color("ImagePlaceholder").opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                LinearGradient(
+                    colors: [
+                        Color("ImagePlaceholder"),
+                        Color("ImagePlaceholder").opacity(0.2)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
             )
             .overlay(viewModel.image != nil ?
                      Image(uiImage: viewModel.image!)
@@ -82,9 +89,9 @@ struct MediaCellView: View {
     var body: some View {
             HStack {
                 image
-                
+
                 VStack(alignment: .leading, spacing: 8) {
-                    VStack (alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 8) {
                         Text(viewModel.media?.displayedName ?? "")
                             .font(.title2)
                             .fontWeight(.semibold)
@@ -94,8 +101,8 @@ struct MediaCellView: View {
                                 .lineLimit(3)
                         }
                     }
-                    
-                    ScrollView(.horizontal) {                     
+
+                    ScrollView(.horizontal) {
                         LazyHStack {
                             HStack(spacing: 12) {
                                 if let voteAverage = viewModel.media?.voteAverage {
@@ -146,13 +153,13 @@ extension MediaCellView {
         @Published var image: UIImage?
         @Published var genres: [Genre] = []
         let size: MediaCellView.Size
-        
+
         var error: ImageError?
         var media: Media?
         var imageService: ImageService
         var genreService: GenreService
         var redacted: Bool
-        
+
         init(
             media: Media? = nil,
             size: MediaCellView.Size = .default,
@@ -165,7 +172,7 @@ extension MediaCellView {
             self.genreService = genreService
             self.redacted = media == nil
         }
-        
+
         func load() async {
             await withTaskGroup(of: Void.self, body: { group in
                 group.addTask {
@@ -177,30 +184,30 @@ extension MediaCellView {
                 }
             })
         }
-                
+
         enum ImageError: String, Error {
             case badURL = "Bad URL"
             case loadError = "Something went wrong while loading"
         }
-        
+
         func loadGenres() async {
             guard let media = media else {
                 return
             }
-            
+
             var mediaGenreIds: [Int] = []
             switch media {
                 case .movie(let movie):
                     mediaGenreIds = movie.genreIds
                 case .tv(let tv):
                     mediaGenreIds = tv.genreIds
-                case .person(_):
+                case .person:
                     return
             }
-            
+
             self.genres = (try? await genreService.genres(id: mediaGenreIds)) ?? []
         }
-        
+
         func loadImage() async {
             do {
                 let data = try await imageService.loadImage(getImagePath())
@@ -215,15 +222,15 @@ extension MediaCellView {
                 image = nil
             }
         }
-        
+
         func getImagePath() throws -> String {
             var posterPath: String?
             var size: String?
-            
+
             guard let media = media else {
                 throw ImageError.badURL
             }
-            
+
             switch media {
                 case .movie(let movie):
                     posterPath = movie.posterPath
@@ -235,16 +242,15 @@ extension MediaCellView {
                     posterPath = person.profilePath
                     size = MovieImageSize.ProfileSize.w185.rawValue
             }
-            
+
             guard let path = posterPath, let size = size else {
                 throw ImageError.badURL
             }
-            
+
             return ImagePath.path(path: path, size: size)
         }
     }
 }
-
 
 struct MovieCellView_Previews: PreviewProvider {
     static var previews: some View {

@@ -5,14 +5,14 @@
 //  Created by Semih Cihan on 26.04.2023.
 //
 
-//import UIKit
-//import Combine
+// import UIKit
+// import Combine
 //
-//struct AppEnvironment {
+// struct AppEnvironment {
 //    let services: Services
-//}
+// }
 //
-//extension AppEnvironment {
+// extension AppEnvironment {
 //
 //    static func bootstrap() -> AppEnvironment {
 //        let services: Services
@@ -84,12 +84,12 @@
 //                     imagesService: imagesService,
 //                     userPermissionsService: userPermissionsService)
 //    }
-//}
+// }
 //
-//struct Services {
+// struct Services {
 //    let movieService: MovieService
 //
 //    init(movieService: MovieService) {
 //        self.movieService = movieService
 //    }
-//}
+// }

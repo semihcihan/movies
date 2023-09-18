@@ -1,0 +1,15 @@
+disabled_rules:
+    - switch_case_alignment
+    - nesting
+excluded:
+  - Pods
+trailing_whitespace:
+  ignores_empty_lines: true
+line_length:
+  warning: 152
+force_cast:
+  severity: error
+identifier_name:
+    min_length: 2
+type_name:
+    min_length: 2

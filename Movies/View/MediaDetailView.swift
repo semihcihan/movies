@@ -10,7 +10,7 @@ import Combine
 
 struct MediaDetailView: View {
     @StateObject private var viewModel: ViewModel
-                    
+
     init(
         media: Media?,
         imageService: ImageService = DIContainer.shared.resolve(type: ImageService.self),
@@ -32,13 +32,13 @@ struct MediaDetailView: View {
                         Image(uiImage: image)
                             .resizable()
                             .aspectRatio(CGSize(width: 500, height: 281), contentMode: .fit)
-                        
+
                     } else {
                         Color.white
                             .frame(height: 220)
                     }
                 }
-                                
+
                 ScrollView(.horizontal) {
                     LazyHStack {
                         if let voteAverage = viewModel.media?.voteAverage {
@@ -64,14 +64,14 @@ struct MediaDetailView: View {
                 }
                 .offset(.init(width: 20, height: 4))
                 .scrollIndicators(.hidden)
-                
+
                 VStack(spacing: 12) {
                     Text(viewModel.media?.displayedName ?? "")
                         .font(.title)
                     Text(viewModel.media?.overview ?? "")
                 }
                 .padding(20)
-                
+
                 Spacer()
             }
         }
@@ -104,49 +104,49 @@ extension MediaDetailView {
             self.imageService = imageService
             self.genreService = genreService
         }
-        
+
         enum ImageError: String, Error {
             case badURL = "Bad URL"
             case loadError = "Something went wrong while loading"
         }
-        
+
         func load() {
             Task {
                 await loadImage()
             }
-            
+
             Task {
                 await loadGenres()
             }
         }
-        
+
         func loadGenres() async {
             guard let media = media else {
                 return
             }
-            
+
             var mediaGenreIds: [Int] = []
             switch media {
                 case .movie(let movie):
                     mediaGenreIds = movie.genreIds
                 case .tv(let tv):
                     mediaGenreIds = tv.genreIds
-                case .person(_):
+                case .person:
                     return
             }
-            
+
             self.genres = (try? await genreService.genres(id: mediaGenreIds)) ?? []
         }
-        
+
         func loadImage() async {
             var path: String?
             var size: String?
-            
+
             guard let media = media else {
                 self.error = ImageError.badURL
                 return
             }
-            
+
             switch media {
                 case .movie(let movie):
                     path = movie.backdropPath
@@ -158,12 +158,12 @@ extension MediaDetailView {
                     path = person.profilePath
                     size = MovieImageSize.ProfileSize.w185.rawValue
             }
-            
+
             guard let path = path, let size = size else {
                 self.error = ImageError.badURL
                 return
             }
-            
+
             do {
                 let data = try await imageService.loadImage(ImagePath.path(path: path, size: size))
                 guard let imageFromData = UIImage(data: data) else {
@@ -175,7 +175,7 @@ extension MediaDetailView {
                 self.error = ImageError.loadError
             }
         }
-        
+
         func cleanup() {
             self.image = nil
             self.error = nil
@@ -185,12 +185,12 @@ extension MediaDetailView {
 
 struct MovieDetailView_Previews: PreviewProvider {
     @State static var paths: [Media] = [Media.movie(Movie.preview), Media.movie(Movie.preview)]
-    
+
     static var previews: some View {
         NavigationStack(path: $paths) {
             MediaDetailView(media: Media.movie(Movie.preview), genreService: PreviewGenreService())
         }
-        .navigationDestination(for: Media.self) { media in
+        .navigationDestination(for: Media.self) { _ in
             MediaDetailView(media: Media.movie(Movie.preview), genreService: PreviewGenreService())
         }
     }

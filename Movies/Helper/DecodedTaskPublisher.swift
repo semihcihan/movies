@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 extension URLSession {
-    func decodedTaskPublisher<T : Decodable>(for request: URLRequest, decoder: JSONDecoder, decodeTo: T.Type) -> AnyPublisher<T, Error> {
+    func decodedTaskPublisher<T: Decodable>(for request: URLRequest, decoder: JSONDecoder, decodeTo: T.Type) -> AnyPublisher<T, Error> {
         return self
             .dataTaskPublisher(for: request)
             .tryMap { element -> Data in
@@ -20,6 +20,6 @@ extension URLSession {
                 return element.data
             }
             .decode(type: T.self, decoder: decoder)
-            .eraseToAnyPublisher()            
+            .eraseToAnyPublisher()
     }
 }

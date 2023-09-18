@@ -23,6 +23,7 @@
 		493B23A72A1B632A00DCC843 /* ImageCacheRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493B23A62A1B632A00DCC843 /* ImageCacheRepository.swift */; };
 		493B23A92A1B678200DCC843 /* ImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493B23A82A1B678200DCC843 /* ImageService.swift */; };
 		493B23AB2A1B8E9200DCC843 /* DIContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 493B23AA2A1B8E9200DCC843 /* DIContainer.swift */; };
+		4977AFD52AB82758001CAD41 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = 4977AFD42AB82758001CAD41 /* .swiftlint.yml */; };
 		4994189F2A37AB57007FBC6B /* ScannedMediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4994189E2A37AB57007FBC6B /* ScannedMediaView.swift */; };
 		49BD6CA42A42F82D00B7DB0A /* Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49BD6CA32A42F82D00B7DB0A /* Navigation.swift */; };
 		49BD6CA82A449EAF00B7DB0A /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49BD6CA72A449EAF00B7DB0A /* String.swift */; };
@@ -79,6 +80,7 @@
 		493B23A62A1B632A00DCC843 /* ImageCacheRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCacheRepository.swift; sourceTree = "<group>"; };
 		493B23A82A1B678200DCC843 /* ImageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageService.swift; sourceTree = "<group>"; };
 		493B23AA2A1B8E9200DCC843 /* DIContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DIContainer.swift; sourceTree = "<group>"; };
+		4977AFD42AB82758001CAD41 /* .swiftlint.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = SOURCE_ROOT; };
 		4994189E2A37AB57007FBC6B /* ScannedMediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannedMediaView.swift; sourceTree = "<group>"; };
 		49BD6CA32A42F82D00B7DB0A /* Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigation.swift; sourceTree = "<group>"; };
 		49BD6CA72A449EAF00B7DB0A /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
@@ -222,6 +224,7 @@
 		49DF749429EDBFCD001EE4D3 /* SupportingFiles */ = {
 			isa = PBXGroup;
 			children = (
+				4977AFD42AB82758001CAD41 /* .swiftlint.yml */,
 				49F7945F29F06D0100CD9AA0 /* Info.plist */,
 				49DF746E29EDBF49001EE4D3 /* Assets.xcassets */,
 				49DF747029EDBF49001EE4D3 /* Preview Content */,
@@ -275,6 +278,7 @@
 				49DF746329EDBF48001EE4D3 /* Sources */,
 				49DF746429EDBF48001EE4D3 /* Frameworks */,
 				49DF746529EDBF48001EE4D3 /* Resources */,
+				4977AFCB2AB8240B001CAD41 /* SwiftLint */,
 			);
 			buildRules = (
 			);
@@ -375,6 +379,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4977AFD52AB82758001CAD41 /* .swiftlint.yml in Resources */,
 				49DF747229EDBF49001EE4D3 /* Preview Assets.xcassets in Resources */,
 				49DF749629EDBFF0001EE4D3 /* sample_list_small.json in Resources */,
 				49DF746F29EDBF49001EE4D3 /* Assets.xcassets in Resources */,
@@ -400,6 +405,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4977AFCB2AB8240B001CAD41 /* SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftLint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [[ \"$(uname -m)\" == arm64 ]]; then\n    export PATH=\"/opt/homebrew/bin:$PATH\"\nfi\n\nif which swiftlint > /dev/null; then\n  swiftlint --fix && swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		49DF746329EDBF48001EE4D3 /* Sources */ = {

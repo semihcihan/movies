@@ -15,42 +15,42 @@ struct NetworkRequest {
     var headers: [String: String]?
     var queryParameters: [URLQueryItem]?
     var timeout: TimeInterval?
-    
+
     var urlRequest: URLRequest {
         guard let url = self.url else {
             fatalError("URL could not be built")
         }
-        
+
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
         request.allHTTPHeaderFields = headers
         request.timeoutInterval = timeout ?? 30
-        
+
         if let httpBody = httpBody {
             request.httpBody = try? httpBody.jsonEncode()
         }
-        
+
         return request
     }
-    
+
     var url: URL? {
         let urlComponents = URLComponents(string: baseURL)
         guard var components = urlComponents else {
             return URL(string: baseURL)
         }
-        
+
         components.path = components.path.appending(path)
-        
+
         guard let queryParams = queryParameters else {
             return components.url
         }
-        
+
         if components.queryItems == nil {
             components.queryItems = []
         }
-        
+
         components.queryItems?.append(contentsOf: queryParams)
-        
+
         return components.url
     }
 }

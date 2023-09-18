@@ -8,10 +8,10 @@
 import SwiftUI
 import Combine
 
-struct ListView: View {    
+struct ListView: View {
     @ObservedObject var viewModel: ViewModel
     @EnvironmentObject var navigation: Navigation
-    
+
     @ViewBuilder
     var headerView: some View {
         if viewModel.searchText.count == 0 {
@@ -19,7 +19,7 @@ struct ListView: View {
                 HStack {
                     Image(systemName: "star.fill")
                         .frame(width: 20)
-                    CrumbSelection(selectedTitleIndex: $viewModel.selectedRatingIndex, titles: viewModel.ratings.map { String($0) + "+" } )
+                    CrumbSelection(selectedTitleIndex: $viewModel.selectedRatingIndex, titles: viewModel.ratings.map { String($0) + "+" })
                     Spacer()
                 }
                 HStack {
@@ -33,7 +33,7 @@ struct ListView: View {
             .padding(.top, -12)
         }
     }
-    
+
     @ViewBuilder
     var errorView: some View {
         if let error = viewModel.error {
@@ -56,7 +56,7 @@ struct ListView: View {
                     } else if !viewModel.loadingFirstPage {
                         ForEach(viewModel.list, id: \.id) { media in
                             switch media {
-                                case .movie(_), .tv(_):
+                                case .movie, .tv:
                                     NavigationLink(value: media) {
                                         MediaCellView(media: media)
                                     }
@@ -67,7 +67,7 @@ struct ListView: View {
                                     MediaCellView(media: media)
                             }
                         }
-                        
+
                         if viewModel.canRequestMore {
                             HStack {
                                 Spacer()
@@ -123,7 +123,7 @@ struct ListView: View {
                         }
                     }
                 }
-                
+
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
                         navigation.path.append(Navigation.Destination.info)
@@ -152,7 +152,7 @@ extension ListView {
         @Published var selectedRatingIndex: Int?
         @Published var selectedCategoryIndex: Int?
         @Published var loadingFirstPage: Bool = true
-                
+
         let ratings: [Int] = [5, 6, 7, 8]
         let mediaService: MediaService
         let genreService: GenreService
@@ -161,7 +161,7 @@ extension ListView {
         var mediaType: Media.MediaType?
         var page: Int = 0
         var totalPages: Int = 1
-        
+
         init(list: [Media] = [],
              error: String? = nil,
              searchText: String = "",
@@ -172,10 +172,10 @@ extension ListView {
             self.mediaService = mediaService
             self.genreService = genreService
             self.searchText = searchText
-            
+
             setupFilterCallbacks()
         }
-        
+
         func setupFilterCallbacks() {
             Task { [weak self] in
                 guard let self = self else {
@@ -190,13 +190,13 @@ extension ListView {
                         default:
                             self.mediaType = nil
                     }
-                    
+
                     self.page = 0
                     self.totalPages = 1
                     self.fetch(forceInitialPage: true)
                 }
             }
-            
+
             Task { [weak self] in
                 guard let self = self else {
                     return
@@ -207,29 +207,27 @@ extension ListView {
                     } else {
                         self.selectedRating = nil
                     }
-                    
+
                     self.page = 0
                     self.totalPages = 1
                     self.fetch(forceInitialPage: true)
                 }
             }
-            
+
             Task { [weak self] in
                 guard let self = self else {
                     return
                 }
-                for await val in self.$searchText.values.dropFirst() {
-                    if val.count == 0 {
-                        fetch(forceInitialPage: true)
-                    }
+                for await val in self.$searchText.values.dropFirst() where val.isEmpty {
+                    fetch(forceInitialPage: true)
                 }
             }
         }
-        
+
         var canRequestMore: Bool {
             return totalPages > page
         }
-        
+
         func fetch(forceInitialPage: Bool = false) {
             Task {
                 if forceInitialPage {
@@ -239,11 +237,11 @@ extension ListView {
                     return
                 }
                 self.error = nil
-                
+
                 do {
                     let task = Task {
-                        if page == 0 { //data on screen is old
-                            if !list.isEmpty { //if empty, show redacted without wait
+                        if page == 0 { // data on screen is old
+                            if !list.isEmpty { // if empty, show redacted without wait
                                 try? await Task.sleep(for: .seconds(0.5))
                             }
                             if !Task.isCancelled {
@@ -260,7 +258,7 @@ extension ListView {
                     if result.page == 1 {
                         list = result.results
                     } else {
-                        list = list + result.results
+                        list += result.results
                     }
                     page = result.page
                     totalPages = result.totalPages
@@ -284,20 +282,20 @@ struct CrumbSelection: View {
     private var transition: AnyTransition = .scale.combined(with: .opacity)
     private var titles: [String]?
     private var labels: [Label<Text, Image>]?
-    
+
     init(selectedTitleIndex: Binding<Int?>, titles: [String]) {
         self._selectedTitleIndex = selectedTitleIndex
         self.titles = titles
     }
-    
+
     init(selectedTitleIndex: Binding<Int?>, labels: [Label<Text, Image>]) {
         self._selectedTitleIndex = selectedTitleIndex
         self.labels = labels
     }
-    
+
     var body: some View {
         let count = titles != nil ? titles!.count : labels!.count
-        
+
         Group {
             HStack(spacing: 8) {
                 if selectedTitleIndex != nil {
@@ -313,7 +311,7 @@ struct CrumbSelection: View {
                     }
                     .transition(transition)
                 }
-                
+
                 ForEach(0..<count, id: \.self) { index in
                     Button {
                         if selectedTitleIndex == index {
@@ -346,8 +344,7 @@ struct CrumbSelection: View {
             .animation(.easeInOut(duration: 0.3), value: selectedTitleIndex)
         }
     }
-    
-    
+
 }
 
 struct ListView_Previews: PreviewProvider {

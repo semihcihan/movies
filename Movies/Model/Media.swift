@@ -50,7 +50,7 @@ enum Media {
     case movie(Movie)
     case tv(TV)
     case person(Person)
-    
+
     var id: Int {
         switch self {
             case .movie(let movie):
@@ -61,7 +61,7 @@ enum Media {
                 return person.id
         }
     }
-    
+
     var popularity: Double {
         switch self {
             case .movie(let movie):
@@ -72,7 +72,7 @@ enum Media {
                 return person.popularity
         }
     }
-    
+
     enum MediaType: String, Decodable {
         case movie
         case tv
@@ -88,22 +88,22 @@ extension Media {
                 voteAve = movie.voteAverage
             case .tv(let tv):
                 voteAve = tv.voteAverage
-            case .person(_):
+            case .person:
                 return nil
         }
-        
+
         return String(voteAve.formatted(.number.precision(.fractionLength(1))))
     }
 }
 
 extension Media: Decodable, Hashable {
     init(from decoder: Decoder) throws {
-        if let v = try? Movie(from: decoder) {
-            self = .movie(v)
-        } else if let v = try? TV(from: decoder) {
-            self = .tv(v)
-        } else if let v = try? Person(from: decoder) {
-            self = .person(v)
+        if let media = try? Movie(from: decoder) {
+            self = .movie(media)
+        } else if let media = try? TV(from: decoder) {
+            self = .tv(media)
+        } else if let media = try? Person(from: decoder) {
+            self = .person(media)
         } else {
             fatalError()
         }
@@ -125,7 +125,7 @@ extension Media {
                 return person.name
         }
     }
-    
+
     var overview: String? {
         switch self {
             case .movie(let movie):
@@ -145,7 +145,7 @@ enum MovieImageSize {
         case w1280
         case original
     }
-    
+
     enum PosterSize: String {
         case w92
         case w154
@@ -155,7 +155,7 @@ enum MovieImageSize {
         case w780
         case original
     }
-    
+
     enum ProfileSize: String {
         case w45
         case w185
@@ -180,7 +180,7 @@ extension Movie {
         backdropPath: "/jetHCwCGqNt3e7jYVUwtjgcCyDn.jpg",
         genreIds: [1, 2, 3, 4, 5],
         originalLanguage: "en",
-        overview: "Tom Ballard lives with his father James in a campsite in the Dolomites. Tom's mother, Alison Hargreaves died descending K2 when he was just 6 years old. Despite this, he never wanted to be anywhere other than in the mountains. His whole life is dedicated to climbing and his last goal is to solo the Six North Faces of the Alps in a single winter season. Nobody has achieved this before, and he wants to be the first. In a white van driven by James, Tom will travel through the Alps to make his dream come true.",
+        overview: "Tom Ballard lives with his father James in a campsite in the Dolomites.",
         posterPath: "/ahofH2q9gBjgGA5MRTl8c4AY05A.jpg",
         video: false,
         voteAverage: 10.0,
@@ -189,7 +189,7 @@ extension Movie {
         originalTitle: "Tom",
         releaseDate: "2015-03-25"
     )
-    
+
     static let previewShortOverview: Movie = Movie(
         adult: false,
         id: 389531,
@@ -216,7 +216,7 @@ extension TV {
         backdropPath: "/9TXcHOeCsM8W3ZKKIKjdYUsRSeq.jpg",
         genreIds: [1, 2, 3, 4, 5],
         originalLanguage: "en",
-        overview: "The story revolves around the people of Sète, France. Their lives are punctuated by family rivalries, romance and scenes from daily life, but also by plots involving police investigations, secrets and betrayals.",
+        overview: "The story revolves around the people of Sète, France.",
         posterPath: "/3uU5uJzOX7xe7mn7YKpBM9oiEZO.jpg",
         voteAverage: 6.7,
         voteCount: 14,

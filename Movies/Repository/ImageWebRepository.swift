@@ -14,11 +14,11 @@ protocol ImageWebRepository: Sendable {
 
 final class RealImageWebRepository: NSObject, ImageWebRepository {
     private let session: URLSession
-    
+
     init(session: URLSession = .shared) {
         self.session = session
     }
-    
+
     func loadImage(_ url: URL) async throws -> Data {
         return try await session.data(from: url).0
     }

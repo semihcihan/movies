@@ -23,59 +23,59 @@ final class EntityTests: XCTestCase {
             XCTAssert(false)
             return
         }
-        
+
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         let entity = try decoder.decode(Movie.self, from: json)
         XCTAssertEqual(entity.originalTitle, "Godzilla vs. Kong")
     }
-    
+
     func testDecodeTV() throws {
         guard let json = loadJsonFile(name: "TV") else {
             XCTAssert(false)
             return
         }
-        
+
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         let entity = try decoder.decode(TV.self, from: json)
         XCTAssertEqual(entity.name, "Faltu")
     }
-    
+
     func testDecodePerson() throws {
         guard let json = loadJsonFile(name: "Person") else {
             XCTAssert(false)
             return
         }
-        
+
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         let entity = try decoder.decode(Person.self, from: json)
         XCTAssertEqual(entity.name, "Tom Cruise")
     }
-    
+
     func testDecodeArray() throws {
         guard let json = loadJsonFile(name: "Multi") else {
             XCTAssert(false)
             return
         }
-        
+
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         let entityArr = try decoder.decode([Media].self, from: json)
-        
+
         guard case let .tv(tv) = entityArr[0] else {
             throw(Error.decodeError)
         }
         XCTAssertEqual(tv.name, "Tomorrow is Ours")
         XCTAssertEqual(tv.firstAirDate, "2017-07-17")
-        
+
         guard case let .movie(movie) = entityArr[1] else {
             throw(Error.decodeError)
         }
         XCTAssertEqual(movie.title, "Little Man Tom")
         XCTAssertEqual(movie.releaseDate, "2022-05-11")
-        
+
         guard case let .person(person) = entityArr[4] else {
             throw(Error.decodeError)
         }
@@ -89,7 +89,7 @@ final class EntityTests: XCTestCase {
             // Put the code you want to measure the time of here.
         }
     }
-    
+
     private func loadJsonFile(name: String) -> Data? {
         if let url = Bundle(for: type(of: self)).url(forResource: name, withExtension: "json") {
             do {
@@ -102,11 +102,9 @@ final class EntityTests: XCTestCase {
         return nil
 
     }
-    
+
     enum Error: Swift.Error {
         case decodeError
     }
 
 }
-
-

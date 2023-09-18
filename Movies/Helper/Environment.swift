@@ -19,8 +19,8 @@ extension EnvironmentValues {
     }
 }
 
-//extension View {
+// extension View {
 //    func path(_ myCustomValue: NavigationPath) -> some View {
 //        environment(\.path, myCustomValue)
 //    }
-//}
+// }

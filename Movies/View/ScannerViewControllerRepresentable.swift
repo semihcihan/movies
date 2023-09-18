@@ -12,13 +12,13 @@ import VisionKit
 struct ScannerViewControllerRepresentable: UIViewControllerRepresentable {
     let mediaService: MediaService
     let genreService: GenreService
-    
+
     init(mediaService: MediaService = DIContainer.shared.resolve(type: MediaService.self),
          genreService: GenreService = DIContainer.shared.resolve(type: GenreService.self)) {
         self.mediaService = mediaService
         self.genreService = genreService
     }
-    
+
     func makeUIViewController(context: Context) -> MyDataScannerViewController {
         let controller = MyDataScannerViewController(
             dataScanner: DataScannerViewController(
@@ -29,10 +29,10 @@ struct ScannerViewControllerRepresentable: UIViewControllerRepresentable {
                 isHighlightingEnabled: true),
             mediaService: mediaService,
             genreService: genreService
-        )        
+        )
         return controller
     }
-        
+
     func updateUIViewController(_ uiViewController: MyDataScannerViewController, context: Context) { }
 }
 
@@ -58,61 +58,60 @@ class MyDataScannerViewController: UIViewController, DataScannerViewControllerDe
     private var hostingController: UIHostingController<ScannedMediaView>?
     private let dataScanner: DataScannerViewController!
     private var task: Task<(), Error>?
-        
+
     init(dataScanner: DataScannerViewController, mediaService: MediaService, genreService: GenreService) {
         self.dataScanner = dataScanner
         self.mediaService = mediaService
         self.genreService = genreService
         self.scannedMediaView = ScannedMediaView(viewModel: ScannedMediaView.ViewModel(mediaService: mediaService, genreService: genreService))
         self.hostingController = UIHostingController(rootView: scannedMediaView)
-        
+
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupChildren()
         dataScanner.regionOfInterest = CGRect(x: 20, y: 50, width: view.bounds.width - 40, height: view.bounds.width - 200)
-        
+
 #if targetEnvironment(simulator)
         Task {
-            try? await Task.sleep(for:.seconds(1))
+            try? await Task.sleep(for: .seconds(1))
             self.didTapOnSimulator(self.dataScanner)
         }
 #endif
     }
-        
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
+
         startScanning()
         navigationController?.navigationBar.prefersLargeTitles = false
     }
-    
+
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        
-        NotificationCenter.default.removeObserver(self)
+
         dataScanner.stopScanning()
     }
-    
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-                        
+
         navigationController?.navigationBar.prefersLargeTitles = true
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+
         self.parent?.navigationItem.largeTitleDisplayMode = .never
     }
-        
+
     func startScanning() {
         guard Self.isAvailable else {
             checkAvailability()
@@ -132,20 +131,20 @@ class MyDataScannerViewController: UIViewController, DataScannerViewControllerDe
             present(alert, animated: true, completion: nil)
         }
     }
-    
+
     func setupChildren() {
         dataScanner.delegate = self
         addChild(dataScanner)
-        view.addSubview(dataScanner.view)        
+        view.addSubview(dataScanner.view)
         addChild(hostingController!)
         let resultsView = hostingController!.view!
         view.addSubview(resultsView)
-        
+
         dataScanner.view.translatesAutoresizingMaskIntoConstraints = false
         resultsView.translatesAutoresizingMaskIntoConstraints = false
-        
+
         let resultsHeight = resultsView.heightAnchor.constraint(equalToConstant: 0)
-        
+
         NSLayoutConstraint.activate([
             dataScanner.view.topAnchor.constraint(equalTo: view.topAnchor),
             dataScanner.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -156,7 +155,7 @@ class MyDataScannerViewController: UIViewController, DataScannerViewControllerDe
             resultsView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             resultsHeight
         ])
-        
+
         Task {
             for await height in scannedMediaView.viewModel.$contentHeight.values {
                 resultsHeight.constant = height
@@ -166,17 +165,21 @@ class MyDataScannerViewController: UIViewController, DataScannerViewControllerDe
             }
         }
     }
-        
+
     func dataScanner(_ dataScanner: DataScannerViewController, didTapOn item: RecognizedItem) {
         self.fetchMediaFor(item)
     }
-    
+
     func checkAvailability() {
         guard !Self.isAvailable else {
             return
         }
-        
-        let alert = UIAlertController(title: "Camera Access", message: "Camera access is required to scan movie & tv series names.", preferredStyle: .alert)
+
+        let alert = UIAlertController(
+            title: "Camera Access",
+            message: "Camera access is required to scan movie & tv series names.",
+            preferredStyle: .alert
+        )
         alert.addAction(UIAlertAction(title: NSLocalizedString("Go to settings", comment: "Default action"), style: .default, handler: { _ in
             guard let url = URL(string: UIApplication.openSettingsURLString),
                   UIApplication.shared.canOpenURL(url) else {
@@ -189,18 +192,17 @@ class MyDataScannerViewController: UIViewController, DataScannerViewControllerDe
         }))
         present(alert, animated: true, completion: nil)
     }
-        
+
 #if targetEnvironment(simulator)
     func didTapOnSimulator(_ dataScanner: DataScannerViewController) {
         self.scannedMediaView.viewModel.startExternalSearch(with: "Try this on a real device")
     }
 #endif
-        
+
     func fetchMediaFor(_ item: RecognizedItem) {
         switch item {
             case .text(let text):
                 scannedMediaView.viewModel.startExternalSearch(with: text.transcript)
-                break
             default:
                 break
         }

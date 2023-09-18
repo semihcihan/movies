@@ -12,7 +12,7 @@ import UIKit
 struct ScannedMediaView: View {
     @ObservedObject var viewModel: ViewModel
     @EnvironmentObject var navigation: Navigation
-    
+
     var body: some View {
         ScrollViewReader { proxy in
             List {
@@ -23,7 +23,7 @@ struct ScannedMediaView: View {
                 } else {
                     ForEach(viewModel.list, id: \.id) { media in
                         switch media {
-                            case .movie(_), .tv(_):
+                            case .movie, .tv:
                                 MediaCellView(media: media, size: .small)
                                     .id(media.id)
                                     .onTapGesture {
@@ -41,7 +41,7 @@ struct ScannedMediaView: View {
             .onSubmit(of: .search) {
                 viewModel.fetch()
             }
-            .onChange(of: viewModel.list, perform: { newValue in
+            .onChange(of: viewModel.list, perform: { _ in
                 proxy.scrollTo(viewModel.list.first?.id)
             })
             .frame(height: viewModel.contentHeight)
@@ -58,11 +58,11 @@ extension ScannedMediaView {
         @Published var searchText: String
         @Published var contentHeight: CGFloat = 0
         @Published var searching = false
-        
+
         let mediaService: MediaService
         let genreService: GenreService
         private static let height = max(300, UIScreen.main.bounds.height / 4)
-        
+
         init(list: [Media] = [],
              error: String? = nil,
              searchText: String = "",
@@ -73,11 +73,11 @@ extension ScannedMediaView {
             self.mediaService = mediaService
             self.genreService = genreService
             self.searchText = searchText
-            
+
             setupFilterCallbacks()
             setupContentHeightCallbacks()
         }
-        
+
         func setupFilterCallbacks() {
             Task { [weak self] in
                 guard let self = self else {
@@ -91,37 +91,33 @@ extension ScannedMediaView {
                 }
             }
         }
-        
+
         func setupContentHeightCallbacks() {
             Task {
-                for await val in $searchText.values {
-                    if val.isEmpty {
-                        self.contentHeight = 0
-                    }
+                for await val in $searchText.values where val.isEmpty {
+                    self.contentHeight = 0
                 }
             }
-            
+
             Task {
-                for await val in $list.values {
-                    if !val.isEmpty {
-                        self.contentHeight = Self.height
-                    }
+                for await val in $list.values where !val.isEmpty {
+                    self.contentHeight = Self.height
                 }
             }
         }
-        
+
         func startExternalSearch(with: String) {
             searchText = with
             fetch()
         }
-                
+
         func fetch() {
             guard !searchText.isEmpty else {
                 self.list = []
                 self.error = nil
                 return
             }
-            
+
             Task {
                 do {
                     let result = try await mediaService.list(
@@ -132,9 +128,9 @@ extension ScannedMediaView {
                         rating: nil)
                     self.list = result.results.filter({ media in
                         switch media {
-                            case .movie(_), .tv(_):
+                            case .movie, .tv:
                                 return true
-                            case .person(_):
+                            case .person:
                                 return false
                         }
                     })
@@ -155,14 +151,14 @@ extension ScannedMediaView {
     static func hostingVC() -> (Self, UIView) {
         let view = ScannedMediaView(viewModel: ScannedMediaView.ViewModel())
         let hostingVC = UIHostingController(rootView: view)
-        
+
         return (view, hostingVC.view)
     }
 }
 
 struct ScannedMediaView_Previews: PreviewProvider {
     @State static var isPresented = true
-    
+
     static var previews: some View {
         NavigationStack {
             ScannerViewControllerRepresentable()
